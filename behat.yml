@@ -1,0 +1,14 @@
+default:
+    
+  paths:
+    features: tests/behat
+
+  extensions:
+      Behat\MinkExtension\Extension:
+          base_url:     http://elvis.discendum.com/kyvytfi
+          goutte:       ~
+          selenium2:    ~
+  
+  context:
+    parameters:
+#        mahararoot: /var/www/kyvytfi

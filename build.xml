@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OBF-Mahara" default="build" basedir="." description="OBF plugin for Mahara">
+
+    <property name="maharadir" value="/home/olli/Projects/kyvytfi"/>
+    <property name="plugindir" value="${maharadir}/htdocs/interaction"/>
+    <property name="srcdir" value="src"/>
+    <property name="testdir" value="tests/phpunit"/>
+
+    <fileset dir="${srcdir}" id="srcfiles">
+        <include name="**"/>
+        <exclude name="pki/*"/>
+    </fileset>
+
+    <target name="build">
+        <echo msg="Copying the files to target directory..."/>
+        <mkdir dir="${plugindir}/obf"/>
+        <copy todir="${plugindir}/obf" overwrite="true">
+            <fileset refid="srcfiles"/>
+        </copy>
+    </target>
+
+    <target name="test">
+        <exec executable="phpunit" passthru="true">
+            <arg value="${testdir}/*_test.php"/>            
+        </exec>
+<!--        <phpunit bootstrap="${maharadir}/htdocs/lib/tests/phpunit/bootstrap.php">
+            <batchtest>
+                <fileset dir="${testdir}">
+                    <include name="**/*_test.php"/>
+                </fileset>
+            </batchtest>
+        </phpunit>-->
+    </target>
+
+</project>
