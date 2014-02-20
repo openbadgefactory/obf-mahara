@@ -18,70 +18,33 @@ define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 $badgeid = param_variable('badgeid');
 $institution = PluginInteractionObf::get_group_institution(GROUP);
 $currentpath = '/interaction/obf/issue.php?badgeid=' . $badgeid . '&group=' . GROUP;
-$section = 'interaction.obf';
 $badge = PluginInteractionObf::get_badge($institution, $badgeid);
-$expiresdefault = empty($badge->expires) ? null : strtotime('+ ' . $badge->expires . ' months');
 
-// TODO: check privileges
-$form = pieform(array(
-    'name' => 'issuance',
-    'renderer' => 'table',
-    'method' => 'post',
-    'elements' => array(
-        'badge' => array(
-            'type' => 'hidden',
-            'value' => $badgeid,
-            'rules' => array(
-                'required' => true
-            )
-        ),
-        'issuancedetails' => array(
-            'type' => 'fieldset',
-            'legend' => get_string('issuancedetails', $section),
-            'elements' => array(
-                'users' => array(
-                    'type' => 'userlist',
-                    'title' => get_string('recipients', $section),
-                    'lefttitle' => get_string('groupmembers', $section),
-                    'righttitle' => get_string('grouprecipients', $section),
-                    'group' => GROUP,
-                    'filter' => false,
-                    'searchscript' => 'interaction/obf/userlist.json.php',
-                    'rules' => array(
-                        'required' => true
-                    )
-                ),
-                'issued' => array(
-                    'type' => 'date',
-                    'minyear' => date('Y') - 1,
-                    'title' => get_string('issuedat', $section),
-                    'rules' => array(
-                        'required' => true
-                    )
-                ),
-                'expires' => array(
-                    'minyear' => date('Y'),
-                    'type' => 'date',
-                    'defaultvalue' => $expiresdefault,
-                    'title' => get_string('expiresat', $section)
-                )
-            )
-        ),
-        'email' => array(
-            'type' => 'fieldset',
-            'legend' => get_string('emailtemplate', $section),
-            'collapsible' => true,
-            'collapsed' => true,
-            'elements' => PluginInteractionObf::get_email_fields($badgeid, $institution)
-        ),
-        'submit' => array(
-            'type' => 'submit',
-            'value' => get_string('issuebadge', $section)
-        )
+$pagestrings = array(
+    'interaction.obf' => array(
+        'issuetoall'
     )
-        )
 );
 
+$smarty = smarty(array(), array(), $pagestrings, array('sidebars' => false));
+$smarty->assign('group', GROUP);
+
+if ($badge !== false) {
+    $smarty->assign('form',
+            PluginInteractionObf::get_issuance_form($badge, $institution));
+    $smarty->assign('badge', $badge);
+    $smarty->assign('events',
+            PluginInteractionObf::get_group_events(GROUP, $badgeid));
+}
+
+$smarty->display('interaction:obf:issue.tpl');
+
+/**
+ * 
+ * @global type $badgeid
+ * @param Pieform $form
+ * @param type $values
+ */
 function issuance_validate(Pieform $form, $values) {
     global $badgeid;
     $badgeid = $values['badge'];
@@ -110,17 +73,3 @@ function issuance_submit(Pieform $form, $values) {
 
     redirect($currentpath);
 }
-
-$pagestrings = array(
-    'interaction.obf' => array(
-        'issuetoall'
-    )
-);
-
-$smarty = smarty(array(), array(), $pagestrings, array('sidebars' => false));
-$smarty->assign('group', GROUP);
-$smarty->assign('form', $form);
-$smarty->assign('badge', $badge);
-$smarty->assign('events',
-        PluginInteractionObf::get_group_events(GROUP, $badgeid));
-$smarty->display('interaction:obf:issue.tpl');

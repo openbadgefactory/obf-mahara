@@ -3,6 +3,7 @@
 defined('INTERNAL') || die();
 define('API_URL', 'https://elvis.discendum.com/obf/v1/');
 define('API_CONSUMER_ID', 'mahara');
+define('EVENTS_PER_PAGE', 15);
 
 require_once(dirname(dirname(__FILE__)) . '/lib.php');
 
@@ -31,9 +32,12 @@ class PluginInteractionObf extends PluginInteraction {
             $isgrouppage = defined('MENUITEM') && strpos(MENUITEM, 'groups/') === 0;
             $isprofilepage = defined('MENUITEM') && strpos(MENUITEM, 'profile/')
                     === 0;
+            $issupervisorpage = defined('MENUITEM') && strpos(MENUITEM,
+                            'supervisor/') === 0;
             $groupid = defined('GROUP') ? (int) GROUP : null;
             $userid = $USER->id;
 
+            // Add our JS-files to group pages.
             if ($isgrouppage && !is_null($groupid) && self::user_can_issue_badges()) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
@@ -45,6 +49,8 @@ class PluginInteractionObf extends PluginInteraction {
                 $obfheaddata .= self::get_assets('init_group',
                                 array($groupid, $jsonopts));
             }
+
+            // Add our JS-files to profile pages.
             else if ($isprofilepage) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
@@ -56,11 +62,28 @@ class PluginInteractionObf extends PluginInteraction {
                                 array($userid, $jsonopts));
             }
 
+            // Kyvyt.fi-specific links (TODO: modularize this!)
+            // 
+            // If the user is a supervisor in an institution, add our link to
+            // navigation.
+            else if ($issupervisorpage && get_field_sql("SELECT 1 FROM {usr_institution} WHERE usr = ? AND supervisor = 1 LIMIT 1",
+                            array($USER->id))) {
+                $jsonopts = json_encode(array(
+                    'lang' => array(
+                        'badges' => get_string('badges', 'interaction.obf')
+                    )
+                ));
+
+                $obfheaddata .= self::get_assets('init_supervisor',
+                                array($jsonopts));
+            }
+
             $HEADDATA['interaction.obf'] = $obfheaddata;
         }
 
         $items = array();
 
+        // Add our page link to institution admin.
         if ($USER->is_institutional_admin()) {
             $items['manageinstitutions/obf'] = array(
                 'path' => 'manageinstitutions/obf',
@@ -72,7 +95,13 @@ class PluginInteractionObf extends PluginInteraction {
         return $items;
     }
 
-    public static function get_assets($initfunc, array $params) {
+    public static function user_is_supervisor_of($institution) {
+        global $USER;
+        return (get_field('usr_institution', 'supervisor', 'usr', $USER->id,
+                        'institution', $institution) == 1);
+    }
+
+    public static function get_assets($initfunc, array $params = array()) {
         global $THEME;
 
         $scripturl = get_config('wwwroot') . 'interaction/obf/js/obf.js';
@@ -118,7 +147,7 @@ JS;
     public static function get_badges($institution) {
         // Check cache first.
         if (isset(self::$badgecache[$institution])) {
-            $badges = self::$badgecache[$institution];
+            return self::$badgecache[$institution];
         }
 
         $curlopts = self::get_curl_opts($institution);
@@ -146,7 +175,8 @@ JS;
         return $badges;
     }
 
-    public static function get_badgelist($institution, $group = null) {
+    public static function get_badgelist($institution, $group = null,
+                                         $context = null) {
         $categories = array();
         $badges = self::get_badges($institution);
         $sm = smarty();
@@ -160,6 +190,7 @@ JS;
         $sm->assign('badges', $badges);
         $sm->assign('categories', $categories);
         $sm->assign('group', $group);
+        $sm->assign('context', $context);
 
         return $sm->fetch('interaction:obf:badgelist.tpl');
     }
@@ -186,21 +217,51 @@ JS;
 
         // TODO; check for errors in request
         $resp = mahara_http_request($curlopts);
+
+        if ($resp->info['http_code'] !== 200) {
+            return false;
+        }
+
         $badgejson = json_decode($resp->data);
 
         return $badgejson;
     }
 
-    public static function get_group_events($groupid, $badgeid = null) {
+    public static function get_group_events($groupid, $badgeid = null,
+                                            $offset = 0, $limit = 10) {
         $institution = self::get_group_institution($groupid);
         $events = self::get_events($institution,
-                        self::get_api_consumer_id($groupid), $badgeid);
+                        self::get_api_consumer_id($groupid), $badgeid, $offset,
+                        $limit);
 
         return $events;
     }
 
+    public static function get_event_count($institution, $groupid = null,
+                                           $badgeid = null) {
+        $curlopts = self::get_curl_opts($institution);
+        $clientid = self::get_client_id($institution);
+
+        if (empty($clientid)) {
+            return false;
+        }
+
+        $aci = self::get_api_consumer_id($groupid);
+        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid . '?api_consumer_id=' .
+                $aci . '&count_only=1';
+
+        if (!is_null($badgeid)) {
+            $curlopts[CURLOPT_URL] .= '&badge_id=' . $badgeid;
+        }
+
+        $resp = mahara_http_request($curlopts);
+        $data = json_decode($resp->data);
+
+        return $data->result_count;
+    }
+
     public static function get_events($institution, $apiconsumerid = null,
-                                      $badgeid = null) {
+                                      $badgeid = null, $offset = 0, $limit = 10) {
         $curlopts = self::get_curl_opts($institution);
         $clientid = self::get_client_id($institution);
 
@@ -209,7 +270,11 @@ JS;
         }
 
         $aci = empty($apiconsumerid) ? self::get_api_consumer_id() : $apiconsumerid;
-        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid . '?api_consumer_id=' . $aci;
+        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid .
+                '?api_consumer_id=' . $aci . '&offset=' . $offset . '&limit=' .
+                $limit . '&order_by=desc';
+
+//        die(var_dump($curlopts[CURLOPT_URL]));
 
         if (!empty($badgeid)) {
             $curlopts[CURLOPT_URL] .= '&badge_id=' . $badgeid;
@@ -436,13 +501,6 @@ SQL;
     }
 
     public static function authenticate($institution, $token) {
-        global $USER;
-
-        if (!$USER->can_edit_institution($institution)) {
-            throw new Exception(get_string('notadminforinstitution',
-                    'interaction.obf'));
-        }
-
         $curlopts = self::get_curl_opts($institution);
         $curlopts[CURLOPT_URL] = API_URL . 'client/OBF.rsa.pub';
 
@@ -527,14 +585,15 @@ SQL;
 
         @unlink($certfile);
         @unlink($pkifile);
-        
+
         self::remove_config_plugin(self::get_config_key_name($institution));
     }
 
     public static function remove_config_plugin($configname) {
-        delete_records('interaction_config', 'plugin', 'obf', 'field', $configname);
+        delete_records('interaction_config', 'plugin', 'obf', 'field',
+                $configname);
     }
-    
+
     public static function get_curl_opts($institution) {
         return array(
             CURLOPT_RETURNTRANSFER => true,
@@ -583,6 +642,75 @@ SQL;
         return $content;
     }
 
+    public static function get_issuance_form($badge, $institution) {
+        $section = 'interaction.obf';
+        $expiresdefault = empty($badge->expires) ? null : strtotime('+ ' . $badge->expires . ' months');
+        
+        // TODO: check privileges
+        $form = pieform(array(
+            'name' => 'issuance',
+            'renderer' => 'table',
+            'method' => 'post',
+            'elements' => array(
+                'badge' => array(
+                    'type' => 'hidden',
+                    'value' => $badge->id,
+                    'rules' => array(
+                        'required' => true
+                    )
+                ),
+                'issuancedetails' => array(
+                    'type' => 'fieldset',
+                    'legend' => get_string('issuancedetails', $section),
+                    'elements' => array(
+                        'users' => array(
+                            'type' => 'userlist',
+                            'title' => get_string('recipients', $section),
+                            'lefttitle' => get_string('groupmembers', $section),
+                            'righttitle' => get_string('grouprecipients',
+                                    $section),
+                            'group' => GROUP,
+                            'filter' => false,
+                            'searchscript' => 'interaction/obf/userlist.json.php',
+                            'rules' => array(
+                                'required' => true
+                            )
+                        ),
+                        'issued' => array(
+                            'type' => 'date',
+                            'minyear' => date('Y') - 1,
+                            'title' => get_string('issuedat', $section),
+                            'rules' => array(
+                                'required' => true
+                            )
+                        ),
+                        'expires' => array(
+                            'minyear' => date('Y'),
+                            'type' => 'date',
+                            'defaultvalue' => $expiresdefault,
+                            'title' => get_string('expiresat', $section)
+                        )
+                    )
+                ),
+                'email' => array(
+                    'type' => 'fieldset',
+                    'legend' => get_string('emailtemplate', $section),
+                    'collapsible' => true,
+                    'collapsed' => true,
+                    'elements' => self::get_email_fields($badge->id,
+                            $institution)
+                ),
+                'submit' => array(
+                    'type' => 'submit',
+                    'value' => get_string('issuebadge', $section)
+                )
+            )
+                )
+        );
+        
+        return $form;
+    }
+
     public static function get_email_fields($badgeid = null, $institution = null) {
         $section = 'interaction.obf';
         $subject = '';
@@ -624,6 +752,12 @@ SQL;
         );
     }
 
+    /**
+     * 
+     * @param type $institution
+     * @return boolean
+     * @throws RemoteServerException If there's an error with the remote server.
+     */
     public static function is_authenticated($institution) {
         $clientid = self::get_client_id($institution);
 
@@ -635,13 +769,31 @@ SQL;
         $curlopts = self::get_curl_opts($institution);
         $curlopts[CURLOPT_URL] = $url;
         $response = mahara_http_request($curlopts);
-
+        $httpcode = $response->info['http_code'];
+        
+        // Remote server error
+        if ($httpcode >= 500) {
+            throw new RemoteServerException(get_string('apierror', 'interaction.obf'));
+        }
+        
         return $response->info['http_code'] == 200;
     }
 
+    public static function get_error_template($message) {
+        $sm = smarty();
+        $sm->assign('error', $message);
+        return $sm->fetch('interaction:obf:error.tpl');
+    }
+    
     public static function get_settings_form($institution) {
-        $authenticated = self::is_authenticated($institution);
         $content = '';
+        
+        try {
+            $authenticated = self::is_authenticated($institution);
+        } catch (RemoteServerException $exc) {
+            $content = self::get_error_template($exc->getMessage());
+            return $content;
+        }
 
         $tokenform = pieform(array(
             'name' => 'token',
@@ -675,13 +827,6 @@ SQL;
     }
 
     public static function save_institution_issuers($institution, array $users) {
-        global $USER;
-
-        if (!$USER->can_edit_institution($institution)) {
-            throw new Exception(get_string('notadminforinstitution',
-                    'interaction.obf'));
-        }
-
         $userids = array_map('intval', $users);
         $validusers = array();
 

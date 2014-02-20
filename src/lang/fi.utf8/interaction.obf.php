@@ -2,6 +2,8 @@
 defined('INTERNAL') || die();
 
 $string['alreadyauthenticated'] = 'Yhteys Open Badge Factoryyn on jo muodostettu.';
+$string['apierror'] = 'Tietojen haku Open Badge Factorysta epäonnistui. Yritä'
+        . ' hetken kuluttua uudelleen.';
 $string['authenticate'] = 'Suorita valtuutus';
 $string['authenticationsuccessful'] = 'Valtuutus onnistui.';
 $string['backpackconnectedhelp'] = 'Yhteys Mozilla Backpackiin on muodostettu'
@@ -25,12 +27,12 @@ $string['badgesuccessfullyissued'] = 'Osaamismerkin myöntäminen onnistui.';
 $string['certdirectorynotwritable'] = 'Sertifikaatin tallennus epäonnistui.'
         . ' Järjestelmän ylläpitäjän tulee tarkistaa, että hakemisto sertifikaateille'
         . ' on luotu ja että palvelinprosessilla on siihen kirjoitusoikeudet.';
-$string['changebadge'] = '< Takaisin merkin valintaan';
 $string['disconnectbackpack'] = 'Katkaise yhteys';
 $string['emailbody'] = 'Viestin alkuosa';
 $string['emailfooter'] = 'Viestin loppuosa';
 $string['emailsubject'] = 'Viestin otsikko';
 $string['emailtemplate'] = 'Sähköpostiviesti';
+$string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
 $string['errorfetchingbadges'] = 'Osaamismerkkien haku epäonnistui.';
 $string['expiresat'] = 'Erääntyy';
 $string['filterbadges'] = 'Suodata merkkejä:';
@@ -42,12 +44,9 @@ $string['institutionissuermembers'] = 'Instituution jäsenet, joilla on oikeus'
 $string['institutionissuers'] = 'Anna myöntämisoikeudet';
 $string['institutionissuersupdated'] = 'Myöntämisoikeudet päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
-$string['institutionselectordescription'] = 'Bacon ipsum dolor sit amet jowl '
-        . 'meatball pork loin bacon short ribs, swine spare ribs. Corned beef '
-        . 'jerky ground round meatloaf. Jerky capicola shank tri-tip. '
-        . 'Porchetta shank tail frankfurter short ribs boudin pork pork belly. '
-        . 'Turducken pig sirloin corned beef boudin swine.';
+$string['institutionselectordescription'] = '';
 $string['issuancedetails'] = 'Myöntämisasetukset';
+$string['issuancefailed'] = 'Merkin myöntäminen epäonnistui. Yritä myöhemmin uudelleen.';
 $string['issuebadge'] = 'Myönnä osaamismerkki';
 $string['issuedat'] = 'Myönnetty';
 $string['issuetoall'] = 'Valitse kaikki >';
@@ -62,7 +61,6 @@ $string['requesttoken'] = 'Valtuutusavain';
 $string['save'] = 'Tallenna';
 $string['savebackpack'] = 'Yhdistä Mozilla Backpackiin';
 $string['saveemail'] = 'Tallenna viesti';
-$string['selectbadge'] = 'Valitse myönnettävä osaamismerkki.';
 $string['settings'] = 'Asetukset';
 $string['showallbadges'] = 'Näytä kaikki';
 $string['tokenerror'] = 'Valtuutus epäonnistui. Ole hyvä ja tarkista, että '

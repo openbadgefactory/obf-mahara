@@ -11,7 +11,7 @@
                         {if $group neq null}
                             <a href="{$WWWROOT}interaction/obf/issue.php?badgeid={$badge->id}&group={$group}">
                         {else}
-                            <a href="{$WWWROOT}interaction/obf/badge.php?{if $group eq null}institution={$institution}&{/if}badgeid={$badge->id}{if $group}&group={$group}{/if}">
+                            <a href="{$WWWROOT}interaction/obf/badge.php?institution={$institution}&badgeid={$badge->id}&context={$context}">
                         {/if}
                         
                         <img src="{$badge->image}" alt="{$badge->name}" />

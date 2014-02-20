@@ -22,29 +22,43 @@ define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 $institution = PluginInteractionObf::get_group_institution(GROUP);
 $section = 'interaction.obf';
 $badge = null;
-$currentpath = '/interaction/obf/group.php?id=' . GROUP;
+$currentpath = 'interaction/obf/group.php?id=' . GROUP;
 $badges = PluginInteractionObf::get_badges($institution);
-
-$subpages = array('badges', 'history');
-$paramtype = param_alpha('type', 'badges');
-$type = !in_array($paramtype, $subpages) ? 'badges' : $paramtype;
 $content = '';
+$subpages = array('badges', 'history');
+$paramtype = param_alpha('page', 'badges');
+$page = !in_array($paramtype, $subpages) ? 'badges' : $paramtype;
+$offset = param_integer('offset', 0);
 
-switch ($type) {
-    case 'badges':
-        $content = PluginInteractionObf::get_badgelist($institution, GROUP);
-        break;
-    case 'history':
-        $events = PluginInteractionObf::get_group_events(GROUP);
-        $sm = smarty();
-        $sm->assign('events', $events);
-        $content = $sm->fetch('interaction:obf:events.tpl');
-        break;
+if ($badges === false) {
+    $content = false;
 }
-
+else {
+    switch ($page) {
+        case 'badges':
+            $content = PluginInteractionObf::get_badgelist($institution, GROUP);
+            break;
+        case 'history':
+            $eventcount = PluginInteractionObf::get_event_count($institution,
+                            GROUP);
+            $pagination = build_pagination(array(
+                'url' => get_config('wwwroot') . $currentpath . '&page=history',
+                'count' => $eventcount,
+                'limit' => EVENTS_PER_PAGE,
+                'offset' => $offset
+            ));
+            $events = PluginInteractionObf::get_group_events(GROUP, null,
+                            $offset, EVENTS_PER_PAGE);
+            $sm = smarty();
+            $sm->assign('events', $events);
+            $sm->assign('pagination', $pagination['html']);
+            $content = $sm->fetch('interaction:obf:events.tpl');
+            break;
+    }
+}
 $smarty = smarty(array(), array(), array(), array('sidebars' => false));
 $smarty->assign('group', GROUP);
-$smarty->assign('type', $type);
+$smarty->assign('page', $page);
 $smarty->assign('subpages', $subpages);
 $smarty->assign('content', $content);
 $smarty->display('interaction:obf:group.tpl');

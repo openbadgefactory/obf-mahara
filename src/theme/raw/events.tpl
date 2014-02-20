@@ -44,6 +44,8 @@
         </tbody>
 
     </table>
+        
+    {$pagination|safe}
 
     <script type="text/javascript">
         {literal}
