@@ -1,5 +1,30 @@
 <?php
-
+/**
+ * Mahara: Electronic portfolio, weblog, resume builder and social networking
+ * Copyright (C) 2006-2009 Catalyst IT Ltd and others; see:
+ *                         http://wiki.mahara.org/Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package    mahara
+ * @subpackage interaction-obf
+ * @author     Discendum Ltd
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
+ * @copyright  (C) Discendum Ltd http://discendum.com
+ * @copyright  (C) 2006-2009 Catalyst IT Ltd http://catalyst.net.nz
+ *
+ */
 defined('INTERNAL') || die();
 define('API_URL', 'https://elvis.discendum.com/obf/v1/');
 define('API_CONSUMER_ID', 'mahara');
@@ -179,7 +204,7 @@ JS;
                                          $context = null) {
         $categories = array();
         $badges = self::get_badges($institution);
-        $sm = smarty();
+        $sm = smarty_core();
 
         if ($badges !== false) {
             $clientid = self::get_client_id($institution);
@@ -780,7 +805,7 @@ SQL;
     }
 
     public static function get_error_template($message) {
-        $sm = smarty();
+        $sm = smarty_core();
         $sm->assign('error', $message);
         return $sm->fetch('interaction:obf:error.tpl');
     }
@@ -817,7 +842,7 @@ SQL;
         ));
 
         if ($authenticated) {
-            $sm = smarty();
+            $sm = smarty_core();
             $content .= $sm->fetch('interaction:obf:alreadyauthenticated.tpl');
         }
 

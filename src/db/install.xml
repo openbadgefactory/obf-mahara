@@ -4,10 +4,11 @@
     xsi:noNamespaceSchemaLocation="../../lib/xmldb/xmldb.xsd"
 >
     <TABLES>
+        
         <TABLE NAME="interaction_obf_issuer">
             <FIELDS>
-                <FIELD NAME="usr" TYPE="int" LENGTH="10" NOTNULL="true" />
-                <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="true" />
+                <FIELD NAME="usr" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="true"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="usr" TYPE="foreign" FIELDS="usr" REFTABLE="usr" REFFIELDS="id"/>
@@ -15,4 +16,27 @@
             </KEYS>
         </TABLE>
     </TABLES>
+    
+    <TABLE NAME="interaction_obf_usr_backpack">
+        <FIELDS>
+            <FIELD NAME="usr" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="usrpk" TYPE="primary" FIELDS="usr"/>
+        </KEYS>
+    </TABLE>
+    
+    <TABLE NAME="interaction_obf_badge_email">
+        <FIELDS>
+            <FIELD NAME="badgeid" TYPE="char" LENGTH="255" NOTNULL="true"/>
+            <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true"/>
+            <FIELD NAME="body" TYPE="text" LENGTH="big" NOTNULL="true"/>
+            <FIELD NAME="footer" TYPE="text" LENGTH="big" NOTNULL="true"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="badgeidpk" TYPE="primary" FIELDS="badgeid"/>
+        </KEYS>
+    </TABLE>
+    
 </XMLDB>
