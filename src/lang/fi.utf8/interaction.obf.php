@@ -54,10 +54,10 @@ $string['certdirectorynotwritable'] = 'Sertifikaatin tallennus epäonnistui.'
         . ' Järjestelmän ylläpitäjän tulee tarkistaa, että hakemisto sertifikaateille'
         . ' on luotu ja että palvelinprosessilla on siihen kirjoitusoikeudet.';
 $string['disconnectbackpack'] = 'Katkaise yhteys';
+$string['email'] = 'Sähköpostiviesti';
 $string['emailbody'] = 'Viestin alkuosa';
 $string['emailfooter'] = 'Viestin loppuosa';
 $string['emailsubject'] = 'Viestin otsikko';
-$string['emailtemplate'] = 'Sähköpostiviesti';
 $string['emailtemplatesaved'] = 'Sähköpostiviesti tallennettu.';
 $string['errorfetchingbadges'] = 'Osaamismerkkien haku epäonnistui.';
 $string['expiresat'] = 'Erääntyy';

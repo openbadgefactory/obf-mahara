@@ -54,10 +54,10 @@ $string['certdirectorynotwritable'] = 'Saving certificate failed. The system'
         . ' admin has to make sure that the directory for the certificate files'
         . ' is created and that it is writable by the server process.';
 $string['disconnectbackpack'] = 'Disconnect';
+$string['email'] = 'Email message';
 $string['emailbody'] = 'Email body';
 $string['emailfooter'] = 'Email footer';
 $string['emailsubject'] = 'Email subject';
-$string['emailtemplate'] = 'Email message';
 $string['emailtemplatesaved'] = 'Email message was successfully saved.';
 $string['errorfetchingbadges'] = 'There was an error while fetching the badges.';
 $string['expiresat'] = 'Expires in';
