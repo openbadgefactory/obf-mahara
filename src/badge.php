@@ -30,17 +30,17 @@ define('SECTION_PLUGINTYPE', 'interaction');
 define('SECTION_PLUGINNAME', 'obf');
 
 require(dirname(dirname(dirname(__FILE__))) . '/init.php');
-require(dirname(__FILE__) . '/lib.php');
+require('lib.php');
 
-$context = param_alpha('context', 'institution');
-$menuitem = $context == 'supervisor' ? 'supervisor/obf' : 'manageinstitutions/obf';
-$institutionaladmin = ($context == 'institution');
+//$context = param_alpha('context', 'institution');
+//$menuitem = $context == 'supervisor' ? 'supervisor/obf' : 'manageinstitutions/obf';
+//$institutionaladmin = ($context == 'institution');
 
-define('MENUITEM', $menuitem);
+define('MENUITEM', 'manageinstitutions/obf');
 
-if ($institutionaladmin) {
+//if ($institutionaladmin) {
     define('INSTITUTIONALADMIN', 1);
-}
+//}
 
 $subpages = array('history', 'email');
 $paramtype = param_alpha('type', 'history');
@@ -62,7 +62,7 @@ switch ($type) {
         $eventcount = PluginInteractionObf::get_event_count($institution, null,
                         $badgeid);
         $pagination = build_pagination(array(
-            'url' => get_config('wwwroot') . $currentpath . '&type=history&context=' . $context,
+            'url' => get_config('wwwroot') . $currentpath . '&type=history',
             'count' => $eventcount,
             'limit' => EVENTS_PER_PAGE,
             'offset' => $offset
@@ -114,21 +114,21 @@ $smarty->assign('STYLESHEETLIST',
                 $cssfilesmodified));
 
 // Update navigation
-if ($context == 'supervisor') {
-    $js .= <<<JS
-       \$j(document).ready(function() {
-           \$j('#sub-nav li.badges').addClass('selected');
-       });
-JS;
-    $smarty->assign('INLINEJAVASCRIPT', $js);
-}
+//if ($context == 'supervisor') {
+//    $js .= <<<JS
+//       \$j(document).ready(function() {
+//           \$j('#sub-nav li.badges').addClass('selected');
+//       });
+//JS;
+//    $smarty->assign('INLINEJAVASCRIPT', $js);
+//}
 
 $smarty->assign('badge', $badge);
 $smarty->assign('type', $type);
 $smarty->assign('institution', $institution);
 $smarty->assign('subpages', $subpages);
 $smarty->assign('content', $content);
-$smarty->assign('context', $context);
+//$smarty->assign('context', $context);
 $smarty->display('interaction:obf:badge.tpl');
 
 function emailtemplate_submit(Pieform $form, $values) {
