@@ -31,7 +31,7 @@ define('SECTION_PLUGINTYPE', 'interaction');
 define('SECTION_PLUGINNAME', 'obf');
 
 require(dirname(dirname(dirname(__FILE__)))) . '/init.php';
-require(dirname(__FILE__)) . '/lib.php';
+require('lib.php');
 require_once('group.php');
 
 define('GROUP', param_integer('group'));

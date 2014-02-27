@@ -31,7 +31,7 @@ define('SECTION_PLUGINTYPE', 'interaction');
 define('SECTION_PLUGINNAME', 'obf');
 
 require(dirname(dirname(dirname(__FILE__))) . '/init.php');
-require_once(dirname(__FILE__) . '/lib.php');
+require_once('lib.php');
 require_once('pieforms/pieform.php');
 require_once('institution.php');
 require_once(dirname(dirname(dirname(__FILE__))) . '/local/institution/lib.php');

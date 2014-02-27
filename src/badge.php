@@ -43,13 +43,13 @@ define('MENUITEM', 'manageinstitutions/obf');
 //}
 
 $subpages = array('history', 'email');
-$paramtype = param_alpha('type', 'history');
+$paramtype = param_alpha('page', 'history');
 $type = !in_array($paramtype, $subpages) ? 'history' : $paramtype;
 $badgeid = param_variable('badgeid');
 $institution = param_alphanum('institution');
 $content = '';
 $badge = PluginInteractionObf::get_badge($institution, $badgeid);
-$currentpath = 'interaction/obf/badge.php?type=' . $type . '&institution=' .
+$currentpath = 'interaction/obf/badge.php?page=' . $type . '&institution=' .
         $institution . '&badgeid=' . $badgeid . '&context=' . $context;
 $offset = param_integer('offset', 0);
 
@@ -62,7 +62,7 @@ switch ($type) {
         $eventcount = PluginInteractionObf::get_event_count($institution, null,
                         $badgeid);
         $pagination = build_pagination(array(
-            'url' => get_config('wwwroot') . $currentpath . '&type=history',
+            'url' => get_config('wwwroot') . $currentpath . '&page=history',
             'count' => $eventcount,
             'limit' => EVENTS_PER_PAGE,
             'offset' => $offset
@@ -124,7 +124,7 @@ $smarty->assign('STYLESHEETLIST',
 //}
 
 $smarty->assign('badge', $badge);
-$smarty->assign('type', $type);
+$smarty->assign('page', $type);
 $smarty->assign('institution', $institution);
 $smarty->assign('subpages', $subpages);
 $smarty->assign('content', $content);

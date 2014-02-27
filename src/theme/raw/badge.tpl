@@ -13,16 +13,7 @@
 <h1>{$badge->name}</h1>
 
 {include file="badgedetails.tpl" badge=$badge}
-
-<div class="tabswrap">
-    <ul class="in-page-tabs">
-        {foreach from=$subpages item=subpage}
-            <li{if $subpage == $type} class="current-tab"{/if}>
-                <a{if $subpage == $type} class="current-tab"{/if} href="{$WWWROOT}interaction/obf/badge.php?type={$subpage}&institution={$institution}&badgeid={$badge->id}&context={$context}">{str tag="badge$subpage" section="interaction.obf"}</a>
-            </li>
-        {/foreach}
-    </ul>
-</div>
+{include file="tabs.tpl" tabs=$subpages selected=$page page="badge.php?institution=$institution&badgeid=$badge->id&context=$context"}
 
 <div class="subpage">
     {$content|safe}

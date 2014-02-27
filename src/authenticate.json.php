@@ -30,7 +30,7 @@ define('JSON', 1);
 define('NOSESSKEY', 1);
 
 require(dirname(dirname(dirname(__FILE__))) . '/init.php');
-require(dirname(__FILE__) . '/lib.php');
+require('lib.php');
 
 $assertion = param_variable('assertion');
 

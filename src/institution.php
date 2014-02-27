@@ -33,7 +33,7 @@ define('SECTION_PLUGINNAME', 'obf');
 define('SECTION_PAGE', 'index');
 
 require(dirname(dirname(dirname(__FILE__))) . '/init.php');
-require_once(dirname(__FILE__) . '/lib.php');
+require_once('lib.php');
 require_once('pieforms/pieform.php');
 require_once('institution.php');
 
