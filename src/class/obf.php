@@ -29,55 +29,50 @@ defined('INTERNAL') || die();
 
 class PluginInteractionObf extends PluginInteraction {
 
-    protected static function get_head_data() {
-        global $USER;
+    /**
+     * Cache for the badges, so that we don't need request the whole batch
+     * every time. The array is formatted as follows:
+     * 
+     * [
+     *      'institution1' => [ badgeobj1, badgeobj2, ... badgeobjN ],
+     *      'institution2' => [ badgeobjX, badgeobjY, ... badgeobjZ ]
+     * ]
+     * 
+     * Where badgeobj is an object with badge data (from OBF API).
+     * 
+     * @var stdClass[]
+     */
+    protected static $badgecache = array();
 
-        $headdata = '';
-        $menuexists = defined('MENUITEM');
-
-        // If the user is a supervisor in an institution, add our link to
-        // navigation.
-        $issupervisorpage = $menuexists && strpos(MENUITEM, 'supervisor/') === 0;
-        $issupervisor = get_field_sql('SELECT 1 FROM {usr_institution} WHERE usr = ? AND supervisor = 1 LIMIT 1',
-                array($USER->id));
-
-        if ($issupervisorpage && $issupervisor) {
-            $jsonopts = json_encode(array(
-                'lang' => array(
-                    'badges' => get_string('badges', 'interaction.obf')
-                )
-            ));
-
-            $headdata .= self::get_assets('init_supervisor', array($jsonopts));
-        }
-
-        return $headdata;
-    }
-
-    public static function user_is_supervisor_of($institution) {
-        global $USER;
-        return (get_field('usr_institution', 'supervisor', 'usr', $USER->id,
+    /**
+     * Whether the user is a supervisor of the institution.
+     * 
+     * @param stdClass $user The user object.
+     * @param string $institution The institution id.
+     * @return boolean Returns true if the user is a supervisor and false otherwise.
+     */
+    public static function user_is_supervisor_of($user, $institution) {
+        return (get_field('usr_institution', 'supervisor', 'usr', $user->id,
                         'institution', $institution) == 1);
     }
 
     /**
-     * Cache for the badges, so that we don't need request the whole batch
-     * every time.
+     * Whether the user is a supervisor to any institution.
      * 
-     * @var type 
+     * @param int $userid The user id.
+     * @return boolean Returns true if the user is a supervisor, false otherwise.
      */
-    protected static $badgecache = array();
-
-    public static function instance_config_form($group, $instance = null) {
-        
+    public static function is_supervisor($userid) {
+        return get_field_sql('SELECT 1 FROM {usr_institution} WHERE usr = ? AND supervisor = 1 LIMIT 1',
+                array($userid));
     }
 
-    public static function instance_config_save($instance, $values) {
-        
-    }
-
+    /**
+     * The hook that extends the main navigation. We make some dirty tricks here
+     * to get our links to show in the menu.
+     */
     public static function menu_items() {
-        global $USER, $HEADDATA;
+        global $USER, $HEADDATA, $THEME;
 
         if (is_null($HEADDATA)) {
             $HEADDATA = array();
@@ -94,15 +89,18 @@ class PluginInteractionObf extends PluginInteraction {
         // we do it like this.
 
         if (!isset($HEADDATA['interaction.obf'])) {
+            $userid = $USER->id;
             $obfheaddata = '';
             $menuexists = defined('MENUITEM');
             $isgrouppage = $menuexists && strpos(MENUITEM, 'groups/') === 0;
             $isprofilepage = $menuexists && strpos(MENUITEM, 'profile/') === 0;
+            $issupervisorpage = $menuexists && strpos(MENUITEM, 'supervisor/') === 0;
+            $issupervisor = self::is_supervisor($userid);
+            $canissuebadges = self::user_can_issue_badges($USER);
             $groupid = defined('GROUP') ? (int) GROUP : null;
-            $userid = $USER->id;
 
             // Add our JS-files to group pages.
-            if ($isgrouppage && !is_null($groupid) && self::user_can_issue_badges()) {
+            if ($isgrouppage && !is_null($groupid) && $canissuebadges) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
                         'issuetoall' => get_string('issuetoall',
@@ -110,7 +108,7 @@ class PluginInteractionObf extends PluginInteraction {
                         'badges' => get_string('badges', 'interaction.obf')
                 )));
 
-                $obfheaddata .= self::get_assets('init_group',
+                $obfheaddata .= self::get_assets($THEME, 'init_group',
                                 array($groupid, $jsonopts));
             }
 
@@ -122,11 +120,23 @@ class PluginInteractionObf extends PluginInteraction {
                                 'interaction.obf')
                     )
                 ));
-                $obfheaddata .= self::get_assets('init_profile',
+                $obfheaddata .= self::get_assets($THEME, 'init_profile',
                                 array($userid, $jsonopts));
             }
 
-            $obfheaddata .= static::get_head_data();
+            // If the user is a supervisor in an institution, add our link to
+            // navigation.
+            else if ($issupervisorpage && $issupervisor) {
+                $jsonopts = json_encode(array(
+                    'lang' => array(
+                        'badges' => get_string('badges', 'interaction.obf')
+                    )
+                ));
+
+                $obfheaddata .= self::get_assets($THEME, 'init_supervisor',
+                                array($jsonopts));
+            }
+
             $HEADDATA['interaction.obf'] = $obfheaddata;
         }
 
@@ -144,14 +154,22 @@ class PluginInteractionObf extends PluginInteraction {
         return $items;
     }
 
-    public static function get_assets($initfunc, array $params = array()) {
-        global $THEME;
-
+    /**
+     * Returns the HTML-markup for the document head. Markup includes our
+     * JavaScript file and stylesheet and a call to our selected init-function.
+     * 
+     * @param Theme $theme
+     * @param string The name of the JS-function (in Obf-namespace) to be called
+     *      after the document is ready.
+     * @param string[] The arguments of the init function.
+     * @return string The HTML-markup.
+     */
+    public static function get_assets($theme, $initfunc, array $params = array()) {
         $scripturl = get_config('wwwroot') . 'interaction/obf/js/obf.js';
-        $obfcssurl = array_pop($THEME->get_url('style/style.css', true,
+        $obfcssurl = array_pop($theme->get_url('style/style.css', true,
                         'interaction/obf'));
         $args = implode(', ', $params);
-        $obfheaddata = <<<JS
+        $obfheaddata = <<<HTML
 <link rel="stylesheet" type="text/css" href="$obfcssurl" />
 <script type="text/javascript" src="$scripturl"></script>
 <script type="text/javascript">
@@ -159,34 +177,62 @@ jQuery(document).ready(function () {
     Obf.$initfunc($args);
 });
 </script>
-JS;
+HTML;
 
         return $obfheaddata;
     }
 
-    public static function user_can_issue_badges() {
-        global $USER;
-        return record_exists('interaction_obf_issuer', 'usr', $USER->id);
+    /**
+     * Whether the user can issue badges or not.
+     * 
+     * @param stdClass $user The user object.
+     * @return boolean True if the user can issue badges and false otherwise.
+     */
+    public static function user_can_issue_badges($user) {
+        return record_exists('interaction_obf_issuer', 'usr', $user->id);
     }
 
+    /**
+     * Returns the OBF client id from the plugin config.
+     * 
+     * @param string $institution The institution id.
+     * @return string|null Returns the client id or null if not found.
+     */
     public static function get_client_id($institution) {
-        // Yes, we should have our own table for clientid's, but what the heck,
-        // It's friday.
+        // Yes, we should have our own table for clientid's, but what the heck.
         $key = self::get_config_key_name($institution);
         $clientid = get_config_plugin('interaction', 'obf', $key);
 
         return $clientid;
     }
 
+    /**
+     * Returns the name of the configuration key used to store the client id.
+     * 
+     * @param string $institution The institution id.
+     * @return string The name of the configuration key.
+     */
     public static function get_config_key_name($institution) {
         return $institution . '.clientid';
     }
 
+    /**
+     * Converts the stream returned by some OBF API calls into valid JSON.
+     * 
+     * @param string $str The JSON-stream.
+     * @return array The decoded data.
+     */
     public static function stream_to_json($str) {
         $json = '[' . implode(',', array_filter(explode("\r\n", $str))) . ']';
         return json_decode($json);
     }
 
+    /**
+     * Returns the institution badges from the API (or cache if exists).
+     * 
+     * @param string $institution The institution id.
+     * @return stdClass[] An array of badge objects.
+     */
     public static function get_badges($institution) {
         // Check cache first.
         if (isset(self::$badgecache[$institution])) {
@@ -218,6 +264,14 @@ JS;
         return $badges;
     }
 
+    /**
+     * Returns the HTML for list of badges.
+     * 
+     * @param string $institution The id of the institution.
+     * @param int $group The group id.
+     * @param type $context
+     * @return string The HTML markup.
+     */
     public static function get_badgelist($institution, $group = null,
                                          $context = null) {
         $categories = array();
@@ -238,8 +292,16 @@ JS;
         return $sm->fetch('interaction:obf:badgelist.tpl');
     }
 
-    public static function get_categories($institution, $clientid) {
+    /**
+     * Returns the badge categories from the OBF API.
+     * 
+     * @param string $institution The institution id.
+     * @param string $clientid The OBF API client id.
+     * @return string[] The categories.
+     */
+    public static function get_categories($institution, $clientid = null) {
         $curlopts = self::get_curl_opts($institution);
+        $clientid = is_null($clientid) ? self::get_client_id($institution) : $clientid;
         $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '/_/categorylist';
 
         $ret = mahara_http_request($curlopts);
@@ -248,6 +310,13 @@ JS;
         return $categories;
     }
 
+    /**
+     * Returns the data of a single badge from the OBF API.
+     * 
+     * @param string $institution The institution id.
+     * @param string $badgeid The badge id.
+     * @return stdClass|false Returns the badge object or false in case of an error.
+     */
     public static function get_badge($institution, $badgeid) {
         $curlopts = self::get_curl_opts($institution);
         $clientid = self::get_client_id($institution);
@@ -257,8 +326,6 @@ JS;
         }
 
         $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '/' . $badgeid;
-
-        // TODO; check for errors in request
         $resp = mahara_http_request($curlopts);
 
         if ($resp->info['http_code'] !== 200) {
@@ -270,6 +337,15 @@ JS;
         return $badgejson;
     }
 
+    /**
+     * Returns the issuance events of a single group.
+     * 
+     * @param int $groupid The id of the group.
+     * @param string $badgeid The id of the badge.
+     * @param int $offset Query offset.
+     * @param int $limit The number of events to fetch.
+     * @return stdClass[] The events.
+     */
     public static function get_group_events($groupid, $badgeid = null,
                                             $offset = 0, $limit = 10) {
         $institution = self::get_group_institution($groupid);
@@ -280,6 +356,16 @@ JS;
         return $events;
     }
 
+    /**
+     * Returns the number of events of an institution or a group.
+     * 
+     * @param string $institution The institution id.
+     * @param int $groupid The id of the group. If set, then the event count of
+     *      the selected group is returned.
+     * @param string $badgeid The badge id. If set, then the event count of
+     *      the selected badge is returned (in selected institution/group).
+     * @return int|false The number of events or false in case of an error.
+     */
     public static function get_event_count($institution, $groupid = null,
                                            $badgeid = null) {
         $curlopts = self::get_curl_opts($institution);
@@ -303,6 +389,16 @@ JS;
         return $data->result_count;
     }
 
+    /**
+     * Returns the institution events from the OBF API.
+     * 
+     * @param string $institution The id of the institution.
+     * @param string $apiconsumerid The api consumer id.
+     * @param string $badgeid The badge id.
+     * @param int $offset The query offset.
+     * @param int $limit The number of events to fetch.
+     * @return stdClass[]|false Returns the events or false in case of an error.
+     */
     public static function get_events($institution, $apiconsumerid = null,
                                       $badgeid = null, $offset = 0, $limit = 10) {
         $curlopts = self::get_curl_opts($institution);
@@ -333,6 +429,13 @@ JS;
         return $eventjson;
     }
 
+    /**
+     * Returns the badge image url (or data url).
+     * 
+     * @param string $badgeid The id of the badge.
+     * @param string $institution The institution id.
+     * @return string The image url or null if not found.
+     */
     public static function get_badge_image($badgeid, $institution) {
         $badges = self::get_badges($institution);
 
@@ -345,6 +448,14 @@ JS;
         return null;
     }
 
+    /**
+     * Saves the badge email template to database.
+     * 
+     * @param string $badgeid The badge id.
+     * @param string $subject The email subject.
+     * @param string $body The email body.
+     * @param string $footer The email footer.
+     */
     public static function save_email_template($badgeid, $subject, $body,
                                                $footer) {
         $existingrecord = new stdClass();
@@ -360,6 +471,15 @@ JS;
                 $updatedrecord);
     }
 
+    /**
+     * Returns the badge email template. Tries to get the local version first
+     * from the database. If not found, gets the template from the OBF API.
+     * 
+     * @param string $badgeid The badge id.
+     * @param string $institution The institution id.
+     * @return array Returns an associative array with 'body', 'subject' and
+     *      'footer' fields or false if template was not found.
+     */
     public static function get_badge_email($badgeid, $institution) {
         // Try to get the template from db first.
         $record = get_record('interaction_obf_badge_email', 'badgeid', $badgeid);
@@ -392,6 +512,12 @@ JS;
         return array('body' => $body, 'subject' => $subject, 'footer' => $footer);
     }
 
+    /**
+     * Returns the names of the selected users.
+     * 
+     * @param int[] $userids The user ids.
+     * @return string[] The display names of the users.
+     */
     public static function get_recipient_names(array $userids) {
         require_once('user.php');
 
@@ -405,22 +531,42 @@ JS;
         return $names;
     }
 
+    /**
+     * Returns the api consumer id. The id if different depending of the
+     * selected context (group or institution).
+     * 
+     * @param int $groupid The id of the group. If not set, then the consumer
+     *      id of the institution is returned.
+     * @return string The api consumer id.
+     */
     public static function get_api_consumer_id($groupid = null) {
         return API_CONSUMER_ID . (is_null($groupid) ? '' : '_group_' . $groupid);
     }
 
-    public static function issue_badge($groupid, $badgeid, $userids, $issuedat,
-                                       $expiresat, $subject, $body, $footer) {
-        global $USER;
-
+    /**
+     * Issues a badge through the OBF API.
+     * 
+     * @param stdClass $user The user who is issuing the badge.
+     * @param int $groupid The id of the group in which context the badge is issued.
+     * @param string $badgeid The id of the issued badge.
+     * @param int[] $userids The ids of the users who are receiving the badge.
+     * @param int $issuedat When the badge is issued, UNIX-timestamp.
+     * @param int $expiresat When the badge will expire (null = never).
+     * @param string $subject The subject of the email that will be sent to recipients.
+     * @param string $body The email body.
+     * @param string $footer The email footer.
+     * @return boolean Returns true if the issuance was successful.
+     * @throws RemoteServerException If something goes wrong while issuing the
+     *      badge.
+     */
+    public static function issue_badge($user, $groupid, $badgeid, $userids,
+                                       $issuedat, $expiresat, $subject, $body,
+                                       $footer) {
         require_once('activity.php');
 
         $institution = self::get_group_institution($groupid);
         $emails = self::get_backpack_emails($userids);
-        $names = self::get_recipient_names($userids);
-        $badges = self::get_badges($institution);
         $logentry = new stdClass();
-
         $logentry->groupid = $groupid;
 
         $postdata = array(
@@ -450,30 +596,64 @@ JS;
                     'interaction.obf', $resp->info['http_code']));
         }
 
-        $badgename = '';
+        self::send_notification_to_issuer($user, $institution, $userids,
+                $badgeid);
 
-        // Find the name of the badge for the notification.
-        foreach ($badges as $badge) {
-            if ($badgeid == $badge->id) {
-                $badgename = $badge->name;
-                break;
-            }
-        }
+        return true;
+    }
 
+    /**
+     * Sends a notification to the user who has issued a badge.
+     * 
+     * @param stdClass $user The user object.
+     * @param string $institution The current institution id.
+     * @param int[] $userids The ids of the recipients.
+     * @param string $badgeid The id of the issued badge.
+     */
+    protected static function send_notification_to_issuer($user, $institution,
+                                                       $userids, $badgeid) {
+        $names = self::get_recipient_names($userids);
+        $badgename = self::get_badgename($institution, $badgeid);
         $message = get_string('youhaveissuedbadgesmessage', 'interaction.obf',
                 $badgename, implode("\r\n", $names));
         $notification = array(
-            'users' => array($USER->id),
+            'users' => array($user->id),
             'subject' => get_string('youhaveissuedbadgessubject',
                     'interaction.obf'),
             'message' => $message
         );
 
         activity_occurred('maharamessage', $notification);
-
-        return true;
     }
 
+    /**
+     * Returns the name of the badge.
+     * 
+     * @param string $institution The institution id.
+     * @param string $badgeid The id of the badge.
+     * @return string|false The name of the badge or false if not found.
+     */
+    public static function get_badgename($institution, $badgeid) {
+        $badges = self::get_badges($institution);
+
+        foreach ($badges as $badge) {
+            if ($badgeid == $badge->id) {
+                return $badge->name;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Returns the ids of the users than can be ignored when creating a list
+     * of possible badge recipients. The ignored users have already earned
+     * the selected badge and the badge hasn't been expired yet.
+     * 
+     * @param int $groupid The id of the current group.
+     * @param string $badgeid The id of the selected badge.
+     * @return int[] The ids of the ignored users.
+     */
     public static function get_ignored_users($groupid, $badgeid) {
         $events = self::get_group_events($groupid, $badgeid);
         $ignored = array();
@@ -490,11 +670,11 @@ JS;
                 $recipients = array_merge($recipients, $event->recipient);
             }
 
-            $recipients = array_unique($recipients);
+            $uniquerecipients = array_unique($recipients);
 
-            if (count($recipients) > 0) {
+            if (count($uniquerecipients) > 0) {
                 $placeholders = implode(', ',
-                        array_fill(0, count($recipients), '?'));
+                        array_fill(0, count($uniquerecipients), '?'));
                 $sql = <<<SQL
 SELECT
     u.id, COALESCE(bp.email, u.email) AS backpack_email
@@ -506,7 +686,7 @@ HAVING
     backpack_email IN ($placeholders)
 SQL;
 
-                $records = get_records_sql_assoc($sql, $recipients);
+                $records = get_records_sql_assoc($sql, $uniquerecipients);
 
                 foreach ($records as $record) {
                     $ignored[] = $record->id;
@@ -517,20 +697,30 @@ SQL;
         return $ignored;
     }
 
+    /**
+     * Returns the backpack emails matching the user ids in $userids. If the
+     * backpack email for a single user doesn't exist, the primary email
+     * address is returned instead. 
+     * 
+     * @param int[] $userids The userids.
+     * @return string[] The email addresses.
+     */
     function get_backpack_emails(array $userids) {
         $userids = array_map('intval', $userids);
         $placeholders = implode(', ', array_fill(0, count($userids), '?'));
 
-        $sql = "SELECT
-                u.username, u.email, bp.email AS backpack_email
-            FROM
-                {usr} u
-            LEFT JOIN
-                {interaction_obf_usr_backpack} bp
-            ON
-                u.id = bp.usr
-            WHERE
-                u.id IN ($placeholders)";
+        $sql = <<<SQL
+SELECT
+    u.username, u.email, bp.email AS backpack_email
+FROM
+    {usr} u
+LEFT JOIN
+    {interaction_obf_usr_backpack} bp
+ON
+    u.id = bp.usr
+WHERE
+    u.id IN ($placeholders)
+SQL;
         $records = get_records_sql_assoc($sql, $userids);
         $recipients = array();
 
@@ -541,6 +731,14 @@ SQL;
         return $recipients;
     }
 
+    /**
+     * Authenticates the institution via OBF API.
+     * 
+     * @param string $institution The institution id.
+     * @param string $token The certificate signing request token from OBF.
+     * @return boolean Returns true if authentication was successful.
+     * @throws Exception If the authentication fails.
+     */
     public static function authenticate($institution, $token) {
         $curlopts = self::get_curl_opts($institution);
         $curlopts[CURLOPT_URL] = API_URL . 'client/OBF.rsa.pub';
@@ -620,6 +818,11 @@ SQL;
         return true;
     }
 
+    /**
+     * Removes authentication data from the system.
+     * 
+     * @param string $institution The institution id.
+     */
     public static function deauthenticate($institution) {
         $certfile = self::get_cert_filename($institution);
         $pkifile = self::get_pkey_filename($institution);
@@ -630,22 +833,40 @@ SQL;
         self::remove_config_plugin(self::get_config_key_name($institution));
     }
 
+    /**
+     * Removes a configuration value from the database related to this plugin.
+     * 
+     * @param string $configname The name of the configuration value.
+     */
     public static function remove_config_plugin($configname) {
         delete_records('interaction_config', 'plugin', 'obf', 'field',
                 $configname);
     }
 
+    /**
+     * Get the Curl-options common to all requests.
+     * 
+     * @param string $institution The institution id.
+     * @return array The curl options as an associative array.
+     */
     public static function get_curl_opts($institution) {
         return array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_SSLCERT => self::get_cert_filename($institution),
             CURLOPT_SSLKEY => self::get_pkey_filename($institution),
-            CURLOPT_SSL_VERIFYHOST => false, // for testing
-            CURLOPT_SSL_VERIFYPEER => false // for testing
+            CURLOPT_SSL_VERIFYHOST => !TEST_MODE, // for testing
+            CURLOPT_SSL_VERIFYPEER => !TEST_MODE // for testing
         );
     }
 
+    /**
+     * Creates and returns the HTML form used to change the issuing privileges
+     * inside an institution.
+     * 
+     * @param string $institution The institution id.
+     * @return string The HTML form
+     */
     public static function get_privileges_form($institution) {
         // Get users who currently have issuer privileges.
         $issuers = get_column_sql('SELECT ioi.usr
@@ -683,6 +904,13 @@ SQL;
         return $content;
     }
 
+    /**
+     * Returns the form used to issue a badge.
+     * 
+     * @param stdClass $badge The selected badge.
+     * @param string $institution The institution id.
+     * @return string The HTML form.
+     */
     public static function get_issuance_form($badge, $institution) {
         $section = 'interaction.obf';
         $expiresdefault = empty($badge->expires) ? null : strtotime('+ ' . $badge->expires . ' months');
@@ -752,6 +980,14 @@ SQL;
         return $form;
     }
 
+    /**
+     * Returns the email form elements (subject, body, footer) to be used
+     * in any Pieform.
+     * 
+     * @param string $badgeid The id of the badge.
+     * @param string $institution The institution id.
+     * @return array The form elements.
+     */
     public static function get_email_fields($badgeid = null, $institution = null) {
         $section = 'interaction.obf';
         $subject = '';
@@ -794,18 +1030,21 @@ SQL;
     }
 
     /**
+     * Checks whether the institution is currently authenticated with the
+     * OBF API.
      * 
-     * @param type $institution
-     * @return boolean
-     * @throws RemoteServerException If there's an error with the remote server.
+     * @param string $institution The institution id.
+     * @return boolean True if already authenticated, false otherwise.
+     * @throws RemoteServerException If something goes wrong while communicating
+     *      with the OBF API.
      */
     public static function is_authenticated($institution) {
         $clientid = self::get_client_id($institution);
-        
+
         if (empty($clientid)) {
             return false;
         }
-        
+
         $url = API_URL . 'client/' . $clientid;
         $curlopts = self::get_curl_opts($institution);
         $curlopts[CURLOPT_URL] = $url;
@@ -817,16 +1056,28 @@ SQL;
             throw new RemoteServerException(get_string('apierror',
                     'interaction.obf'));
         }
-        
+
         return $response->info['http_code'] == 200;
     }
 
+    /**
+     * Returns the HTML used to show an error message.
+     * 
+     * @param string $message The error message to show.
+     * @return string The HTML markup.
+     */
     public static function get_error_template($message) {
         $sm = smarty_core();
         $sm->assign('error', $message);
         return $sm->fetch('interaction:obf:error.tpl');
     }
 
+    /**
+     * Creates and returns the HTML form used to authenticate the institution.
+     * 
+     * @param string $institution The institution id.
+     * @return string The HTML form.
+     */
     public static function get_settings_form($institution) {
         $content = '';
 
@@ -868,6 +1119,13 @@ SQL;
         return $content;
     }
 
+    /**
+     * Updates the issuer privileges to database.
+     * 
+     * @param string $institution The institution id.
+     * @param int[] $users The userids with the issuer privilege.
+     * @return boolean
+     */
     public static function save_institution_issuers($institution, array $users) {
         $userids = array_map('intval', $users);
         $validusers = array();
@@ -900,11 +1158,18 @@ SQL;
         return true;
     }
 
+    /**
+     * Verifies the assertion returned by Persona's authentication callback.
+     * 
+     * @param string $assertion The assertion from Persona.
+     * @return string Returns the email address matching the assertion.
+     * @throws Exception If the verification fails for some reason.
+     */
     public static function verify_backpack_assertion($assertion) {
         $params = array('assertion' => $assertion, 'audience' => self::get_audience());
         $curlopts = array(
             CURLOPT_POST => 1,
-            CURLOPT_URL => 'https://verifier.login.persona.org/verify',
+            CURLOPT_URL => PERSONA_VERIFIER_URL,
             CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
             CURLOPT_POSTFIELDS => json_encode($params)
         );
@@ -932,20 +1197,29 @@ SQL;
         return $email;
     }
 
-    public static function save_backpack_email($email) {
-        global $USER;
-
+    /**
+     * Saves the user's backpack email to database.
+     * 
+     * @param stdClass $user The user object.
+     * @param type $email
+     */
+    public static function save_backpack_email($user, $email) {
         $existingrecord = new stdClass();
-        $existingrecord->usr = $USER->id;
+        $existingrecord->usr = $user->id;
 
         $record = new stdClass();
-        $record->usr = $USER->id;
+        $record->usr = $user->id;
         $record->email = $email;
 
         ensure_record_exists('interaction_obf_usr_backpack', $existingrecord,
                 $record);
     }
 
+    /**
+     * Returns the audience (site URL) used in Persona verification.
+     * 
+     * @return string The site URL.
+     */
     public static function get_audience() {
         $urlparts = parse_url(get_config('wwwroot'));
         $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
@@ -954,16 +1228,42 @@ SQL;
         return $url;
     }
 
+    /**
+     * Returns the institution the selected group belongs to.
+     * 
+     * @param int $groupid The id of the group.
+     * @return string The institution id.
+     */
     public static function get_group_institution($groupid) {
         return get_field('group', 'institution', 'id', $groupid);
     }
 
+    /**
+     * Returns the absolute path of the institution's public key file.
+     * 
+     * @param string $institution The institution id.
+     * @return string The absolute path of the file.
+     */
     public static function get_pkey_filename($institution) {
         return __DIR__ . '/../pki/' . $institution . '.key';
     }
 
+    /**
+     * Returns the absolute path of the institution's certificate file.
+     * 
+     * @param string $institution The institution id.
+     * @return string The absolute path of the file.
+     */
     public static function get_cert_filename($institution) {
         return __DIR__ . '/../pki/' . $institution . '.pem';
+    }
+
+    public static function instance_config_form($group, $instance = null) {
+        
+    }
+
+    public static function instance_config_save($instance, $values) {
+        
     }
 
 }

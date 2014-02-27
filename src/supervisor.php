@@ -137,7 +137,7 @@ function token_submit(Pieform $form, $values) {
     global $SESSION, $institution, $currentpath, $USER;
 
     try {
-        if (!PluginInteractionObf::user_is_supervisor_of($institution)) {
+        if (!PluginInteractionObf::user_is_supervisor_of($USER, $institution)) {
             throw new Exception(get_string('notadminforinstitution',
                     'interaction.obf'));
         }
@@ -153,10 +153,10 @@ function token_submit(Pieform $form, $values) {
 }
 
 function institutionissuers_submit(Pieform $form, $values) {
-    global $institution, $SESSION, $currentpath;
+    global $institution, $SESSION, $currentpath, $USER;
 
     try {
-        if (!PluginInteractionObf::user_is_supervisor_of($institution)) {
+        if (!PluginInteractionObf::user_is_supervisor_of($USER, $institution)) {
             throw new Exception(get_string('notadminforinstitution',
                     'interaction.obf'));
         }

@@ -83,10 +83,10 @@ function issuance_validate(Pieform $form, $values) {
  * @param type $values
  */
 function issuance_submit(Pieform $form, $values) {
-    global $SESSION, $currentpath;
+    global $SESSION, $currentpath, $USER;
 
     try {
-        PluginInteractionObf::issue_badge(GROUP, $values['badge'],
+        PluginInteractionObf::issue_badge($USER, GROUP, $values['badge'],
                 $values['users'], $values['issued'], $values['expires'],
                 $values['subject'], $values['body'], $values['footer']);
 
