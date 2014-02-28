@@ -45,29 +45,6 @@ class PluginInteractionObf extends PluginInteraction {
     protected static $badgecache = array();
 
     /**
-     * Whether the user is a supervisor of the institution.
-     * 
-     * @param stdClass $user The user object.
-     * @param string $institution The institution id.
-     * @return boolean Returns true if the user is a supervisor and false otherwise.
-     */
-    public static function user_is_supervisor_of($user, $institution) {
-        return (get_field('usr_institution', 'supervisor', 'usr', $user->id,
-                        'institution', $institution) == 1);
-    }
-
-    /**
-     * Whether the user is a supervisor to any institution.
-     * 
-     * @param int $userid The user id.
-     * @return boolean Returns true if the user is a supervisor, false otherwise.
-     */
-    public static function is_supervisor($userid) {
-        return get_field_sql('SELECT 1 FROM {usr_institution} WHERE usr = ? AND supervisor = 1 LIMIT 1',
-                array($userid));
-    }
-
-    /**
      * The hook that extends the main navigation. We make some dirty tricks here
      * to get our links to show in the menu.
      */
@@ -94,8 +71,6 @@ class PluginInteractionObf extends PluginInteraction {
             $menuexists = defined('MENUITEM');
             $isgrouppage = $menuexists && strpos(MENUITEM, 'groups/') === 0;
             $isprofilepage = $menuexists && strpos(MENUITEM, 'profile/') === 0;
-            $issupervisorpage = $menuexists && strpos(MENUITEM, 'supervisor/') === 0;
-            $issupervisor = self::is_supervisor($userid);
             $canissuebadges = self::user_can_issue_badges($USER);
             $groupid = defined('GROUP') ? (int) GROUP : null;
 
@@ -125,20 +100,6 @@ class PluginInteractionObf extends PluginInteraction {
                 $addcss = (MENUITEM != 'profile/backpack');
                 $obfheaddata .= self::get_assets($THEME, 'init_profile',
                                 array($userid, $jsonopts), $addcss);
-            }
-
-            // If the user is a supervisor in an institution, add our link to
-            // navigation.
-            else if ($issupervisorpage && $issupervisor) {
-                $jsonopts = json_encode(array(
-                    'lang' => array(
-                        'badges' => get_string('badges', 'interaction.obf')
-                    )
-                ));
-
-                $addcss = (MENUITEM != 'supervisor/obf');
-                $obfheaddata .= self::get_assets($THEME, 'init_supervisor',
-                                array($jsonopts), $addcss);
             }
 
             $HEADDATA['interaction.obf'] = $obfheaddata;
@@ -761,7 +722,7 @@ SQL;
         $pubkey = mahara_http_request($curlopts);
 
         if ($pubkey->data === false || $pubkey->info['http_code'] !== 200) {
-            log_warn('Error while fetching public key: ' . print_r($pubkey, true));
+            log_warn('Error while fetching public key: ' . var_export($pubkey, true));
             throw new Exception(get_string('tokenerror', 'interaction.obf'));
         }
 
