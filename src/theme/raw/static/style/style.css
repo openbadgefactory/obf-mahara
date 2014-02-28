@@ -67,11 +67,16 @@ ul#badges li .badge-wrapper .name {
   -ms-transform: rotateY(0);
   transform: rotateY(0);
 }
+ul#badges li .badge-wrapper .name a {
+  display: block;
+}
 ul#badges li .badge-wrapper .name img {
   height: 90px;
   margin: 15px 0;
 }
 ul#badges li .badge-wrapper .name p {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
   box-sizing: border-box;
   height: 30px;
   font-size: 12px;
@@ -215,50 +220,9 @@ table.events td.image img {
   width: 20%;
   vertical-align: middle;
 }
-/*
-#badge-issue-wrapper {
-    overflow: hidden;
-
-    #badge-issue-details {
-        float: right;
-        width: 32%;
-        
-        table { width: 100%; }
-        
-        #badge-image-wrapper {
-            width: 64px;
-            padding-top: 1em;
-        }
-        
-        #badge-detail-wrapper {
-            margin-left: 84px;
-            h3 { display: none; }
-            dl#badge-details {
-                dt { float: none; }
-                dd { margin-left: 0; padding-bottom: 5px; }
-            }
-        }
-    }
-    
-    #badge-issue-form {
-        float: left;
-        width: 64%;
-        padding: 0 1%;
-        border-right: solid #ccc 1px;
-        
-        table { width: 100%; }
-        .userlisttable {
-            min-width: 0;
-            td.lrfieldlists {
-                width: 40%;
-                select { max-width: none; }
-            }
-            td.lrbuttons { width: 20%; vertical-align: middle; }
-        }
-    }
-}*/
 /* From Bootstrap mixins */
 /* From Bootstrap mixins */
 /* From Bootstrap mixins */
 /* From Bootstrap mixins */
 /* From Bootstrap mixins */
+/* From Boostrap mixins */

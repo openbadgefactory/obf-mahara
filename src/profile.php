@@ -37,6 +37,7 @@ $currentpath = '/interaction/obf/profile.php?user=' . $USER->id;
 
 define('TITLE', get_string('backpacksettings', 'interaction.obf'));
 
+// User doesn't yet have backpack email saved to database.
 if ($backpackemail === false) {
     $helptext = get_string('backpackhelp', 'interaction.obf');
     $form = pieform(array(

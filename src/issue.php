@@ -51,12 +51,14 @@ $pagestrings = array(
     )
 );
 
+// HOX! All the forms need to be created before smarty() -call. Otherwise
+// the Pieform-JS isn't added to document head.
+$form = PluginInteractionObf::get_issuance_form($badge, $institution);
 $smarty = smarty(array(), array(), $pagestrings, array('sidebars' => false));
 $smarty->assign('group', GROUP);
 
 if ($badge !== false) {
-    $smarty->assign('form',
-            PluginInteractionObf::get_issuance_form($badge, $institution));
+    $smarty->assign('form', $form);
     $smarty->assign('badge', $badge);
     $smarty->assign('events',
             PluginInteractionObf::get_group_events(GROUP, $badgeid));
@@ -64,24 +66,11 @@ if ($badge !== false) {
 
 $smarty->display('interaction:obf:issue.tpl');
 
-/**
- * 
- * @global type $badgeid
- * @param Pieform $form
- * @param type $values
- */
 function issuance_validate(Pieform $form, $values) {
     global $badgeid;
     $badgeid = $values['badge'];
 }
 
-/**
- * 
- * @global type $institution
- * @global Session $SESSION
- * @param Pieform $form
- * @param type $values
- */
 function issuance_submit(Pieform $form, $values) {
     global $SESSION, $currentpath, $USER;
 

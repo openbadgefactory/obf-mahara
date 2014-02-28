@@ -31,6 +31,10 @@ $string['alreadyauthenticated'] = 'Connection to Open Badge Factory is up and wo
 $string['apierror'] = 'Fetching data from Open Badge Factory failed. Please try'
         . ' again later.';
 $string['authenticate'] = 'Authenticate';
+$string['authenticationhelp'] = '<p>Certificate needs to be generated before'
+        . ' Open Badge Factory can be used within the institution. Log in to'
+        . ' Open Badge Factory to get the request token and paste it to the'
+        . ' field below.</p>';
 $string['authenticationsuccessful'] = 'Authentication successful.';
 $string['backpackconnectedhelp'] = 'Connection to Mozilla Backpack is '
         . 'established using your email address <strong>%s</strong>.';

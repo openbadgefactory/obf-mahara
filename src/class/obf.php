@@ -108,8 +108,9 @@ class PluginInteractionObf extends PluginInteraction {
                         'badges' => get_string('badges', 'interaction.obf')
                 )));
 
+                $addcss = (MENUITEM != 'groups/badges');
                 $obfheaddata .= self::get_assets($THEME, 'init_group',
-                                array($groupid, $jsonopts));
+                                array($groupid, $jsonopts), $addcss);
             }
 
             // Add our JS-files to profile pages.
@@ -120,8 +121,10 @@ class PluginInteractionObf extends PluginInteraction {
                                 'interaction.obf')
                     )
                 ));
+
+                $addcss = (MENUITEM != 'profile/backpack');
                 $obfheaddata .= self::get_assets($THEME, 'init_profile',
-                                array($userid, $jsonopts));
+                                array($userid, $jsonopts), $addcss);
             }
 
             // If the user is a supervisor in an institution, add our link to
@@ -133,8 +136,9 @@ class PluginInteractionObf extends PluginInteraction {
                     )
                 ));
 
+                $addcss = (MENUITEM != 'supervisor/obf');
                 $obfheaddata .= self::get_assets($THEME, 'init_supervisor',
-                                array($jsonopts));
+                                array($jsonopts), $addcss);
             }
 
             $HEADDATA['interaction.obf'] = $obfheaddata;
@@ -158,19 +162,18 @@ class PluginInteractionObf extends PluginInteraction {
      * Returns the HTML-markup for the document head. Markup includes our
      * JavaScript file and stylesheet and a call to our selected init-function.
      * 
-     * @param Theme $theme
-     * @param string The name of the JS-function (in Obf-namespace) to be called
-     *      after the document is ready.
-     * @param string[] The arguments of the init function.
+     * @param Theme $theme The current theme object.
+     * @param string $initfunc The name of the JS-function (in Obf-namespace)
+     *      to be called after the document is ready.
+     * @param string[] $params The arguments of the init function.
+     * @param boolean $addcss Whether to include our CSS-file.
      * @return string The HTML-markup.
      */
-    public static function get_assets($theme, $initfunc, array $params = array()) {
+    public static function get_assets($theme, $initfunc,
+                                      array $params = array(), $addcss = true) {
         $scripturl = get_config('wwwroot') . 'interaction/obf/js/obf.js';
-        $obfcssurl = array_pop($theme->get_url('style/style.css', true,
-                        'interaction/obf'));
         $args = implode(', ', $params);
         $obfheaddata = <<<HTML
-<link rel="stylesheet" type="text/css" href="$obfcssurl" />
 <script type="text/javascript" src="$scripturl"></script>
 <script type="text/javascript">
 jQuery(document).ready(function () {
@@ -178,6 +181,12 @@ jQuery(document).ready(function () {
 });
 </script>
 HTML;
+
+        if ($addcss) {
+            $obfcssurl = array_pop($theme->get_url('style/style.css', true,
+                            'interaction/obf'));
+            $obfheaddata .= '<link rel="stylesheet" type="text/css" href="' . $obfcssurl . '" />';
+        }
 
         return $obfheaddata;
     }
@@ -540,7 +549,7 @@ HTML;
      * @return string The api consumer id.
      */
     public static function get_api_consumer_id($groupid = null) {
-        return API_CONSUMER_ID . (is_null($groupid) ? '' : '_group_' . $groupid);
+        return (is_null($groupid) ? '' : API_CONSUMER_ID . '_group_' . $groupid);
     }
 
     /**
@@ -611,7 +620,7 @@ HTML;
      * @param string $badgeid The id of the issued badge.
      */
     protected static function send_notification_to_issuer($user, $institution,
-                                                       $userids, $badgeid) {
+                                                          $userids, $badgeid) {
         $names = self::get_recipient_names($userids);
         $badgename = self::get_badgename($institution, $badgeid);
         $message = get_string('youhaveissuedbadgesmessage', 'interaction.obf',
@@ -641,7 +650,7 @@ HTML;
                 return $badge->name;
             }
         }
-        
+
         return false;
     }
 
@@ -914,8 +923,6 @@ SQL;
     public static function get_issuance_form($badge, $institution) {
         $section = 'interaction.obf';
         $expiresdefault = empty($badge->expires) ? null : strtotime('+ ' . $badge->expires . ' months');
-
-        // TODO: check privileges
         $form = pieform(array(
             'name' => 'issuance',
             'renderer' => 'table',
@@ -1095,7 +1102,6 @@ SQL;
                 'token' => array(
                     'type' => 'textarea',
                     'title' => get_string('requesttoken', 'interaction.obf'),
-                    'help' => true,
                     'rows' => 5,
                     'cols' => 80,
                     'rules' => array('required' => true),
