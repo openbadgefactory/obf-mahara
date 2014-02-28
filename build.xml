@@ -1,35 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="OBF-Mahara" default="build" basedir="." description="OBF plugin for Mahara">
-
-    <property name="maharadir" value="/home/olli/Projects/kyvytfi"/>
-    <property name="plugindir" value="${maharadir}/htdocs/interaction"/>
+    
+<!--    <if>
+        <not>
+            <isset property="build.env"/>
+        </not>
+        <then>
+            <property name="build.env" value="kyvytfi"/>
+        </then>
+    </if>-->
+    
+    <property name="plugindir" value="/home/olli/Projects/kyvytfi/htdocs/interaction"/>
     <property name="srcdir" value="src"/>
     <property name="testdir" value="tests/phpunit"/>
-
+    <property name="builddir" value="build"/>
+    <property file="build.properties"/>    
+    <!--<property file="${builddir}/default.properties"/>-->
+    <!--<property file="${builddir}/${build.env}.properties"/>-->
+    
     <fileset dir="${srcdir}" id="srcfiles">
         <include name="**"/>
         <exclude name="pki/*"/>
     </fileset>
 
+    <target name="deploy-local" depends="build">
+        <mkdir dir="${local.path}"/>
+        <copy todir="${local.path}" overwrite="true" >
+            <!--<fileset refid="${builddir}/${build.env}"/>-->
+            <fileset dir="${builddir}/${build.env}">
+                <include name="**"/>
+                <exclude name="pki/*"/>
+            </fileset>
+        </copy>
+    </target>
+
     <target name="build">
         <echo msg="Copying the files to target directory..."/>
-        <mkdir dir="${plugindir}/obf"/>
-        <copy todir="${plugindir}/obf" overwrite="true">
+        <mkdir dir="${builddir}/${build.env}"/>
+        <copy todir="${builddir}/${build.env}" overwrite="true">
             <fileset refid="srcfiles"/>
-        </copy>
+            <filterchain>
+                <replacetokens begintoken="%%" endtoken="%%">
+                    <token key="API_URL" value="${api.url}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>        
     </target>
 
     <target name="test">
         <exec executable="phpunit" passthru="true">
             <arg value="${testdir}/*_test.php"/>            
         </exec>
-<!--        <phpunit bootstrap="${maharadir}/htdocs/lib/tests/phpunit/bootstrap.php">
-            <batchtest>
-                <fileset dir="${testdir}">
-                    <include name="**/*_test.php"/>
-                </fileset>
-            </batchtest>
-        </phpunit>-->
     </target>
 
 </project>
