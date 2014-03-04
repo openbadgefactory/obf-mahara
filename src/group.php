@@ -44,43 +44,26 @@ if (!is_logged_in() && !$group->public) {
 
 define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 
-$institution = PluginInteractionObf::get_group_institution(GROUP);
 $section = 'interaction.obf';
 $badge = null;
 $currentpath = 'interaction/obf/group.php?id=' . GROUP;
-$badges = PluginInteractionObf::get_badges($institution);
+$institutions = PluginInteractionObf::get_issuable_institutions($USER);
 $content = '';
 $subpages = array('badges', 'history');
 $paramtype = param_alpha('page', 'badges');
 $page = !in_array($paramtype, $subpages) ? 'badges' : $paramtype;
 $offset = param_integer('offset', 0);
 
-if ($badges === false) {
-    $content = false;
+switch ($page) {
+    case 'badges':
+        $content = PluginInteractionObf::get_badgelist($institutions, GROUP);
+        break;
+    case 'history':
+        $content = PluginInteractionObf::get_eventlist($institutions, GROUP,
+                        $currentpath, $offset);
+        break;
 }
-else {
-    switch ($page) {
-        case 'badges':
-            $content = PluginInteractionObf::get_badgelist($institution, GROUP);
-            break;
-        case 'history':
-            $eventcount = PluginInteractionObf::get_event_count($institution,
-                            GROUP);
-            $pagination = build_pagination(array(
-                'url' => get_config('wwwroot') . $currentpath . '&page=history',
-                'count' => $eventcount,
-                'limit' => EVENTS_PER_PAGE,
-                'offset' => $offset
-            ));
-            $events = PluginInteractionObf::get_group_events(GROUP, null,
-                            $offset, EVENTS_PER_PAGE);
-            $sm = smarty_core();
-            $sm->assign('events', $events);
-            $sm->assign('pagination', $pagination['html']);
-            $content = $sm->fetch('interaction:obf:events.tpl');
-            break;
-    }
-}
+
 $smarty = smarty(array(), array(), array(), array('sidebars' => false));
 $smarty->assign('group', GROUP);
 $smarty->assign('page', $page);

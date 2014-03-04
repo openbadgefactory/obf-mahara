@@ -32,15 +32,8 @@ define('SECTION_PLUGINNAME', 'obf');
 require(dirname(dirname(dirname(__FILE__))) . '/init.php');
 require('lib.php');
 
-//$context = param_alpha('context', 'institution');
-//$menuitem = $context == 'supervisor' ? 'supervisor/obf' : 'manageinstitutions/obf';
-//$institutionaladmin = ($context == 'institution');
-
 define('MENUITEM', 'manageinstitutions/obf');
-
-//if ($institutionaladmin) {
-    define('INSTITUTIONALADMIN', 1);
-//}
+define('INSTITUTIONALADMIN', 1);
 
 $subpages = array('history', 'email');
 $paramtype = param_alpha('page', 'history');
@@ -50,7 +43,7 @@ $institution = param_alphanum('institution');
 $content = '';
 $badge = PluginInteractionObf::get_badge($institution, $badgeid);
 $currentpath = 'interaction/obf/badge.php?page=' . $type . '&institution=' .
-        $institution . '&badgeid=' . $badgeid . '&context=' . $context;
+        $institution . '&badgeid=' . $badgeid;
 $offset = param_integer('offset', 0);
 
 define('TITLE',
@@ -113,22 +106,11 @@ $smarty->assign('STYLESHEETLIST',
         array_merge($smarty->get_template_vars('STYLESHEETLIST'),
                 $cssfilesmodified));
 
-// Update navigation
-//if ($context == 'supervisor') {
-//    $js .= <<<JS
-//       \$j(document).ready(function() {
-//           \$j('#sub-nav li.badges').addClass('selected');
-//       });
-//JS;
-//    $smarty->assign('INLINEJAVASCRIPT', $js);
-//}
-
 $smarty->assign('badge', $badge);
 $smarty->assign('page', $type);
 $smarty->assign('institution', $institution);
 $smarty->assign('subpages', $subpages);
 $smarty->assign('content', $content);
-//$smarty->assign('context', $context);
 $smarty->display('interaction:obf:badge.tpl');
 
 function emailtemplate_submit(Pieform $form, $values) {

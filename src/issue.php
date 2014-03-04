@@ -41,8 +41,9 @@ $group = group_current_group();
 define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 
 $badgeid = param_variable('badgeid');
-$institution = PluginInteractionObf::get_group_institution(GROUP);
-$currentpath = '/interaction/obf/issue.php?badgeid=' . $badgeid . '&group=' . GROUP;
+//$institution = PluginInteractionObf::get_group_institution(GROUP);
+$institution = param_variable('institution');
+$currentpath = '/interaction/obf/issue.php?institution=' . $institution . '&badgeid=' . $badgeid . '&group=' . GROUP;
 $badge = PluginInteractionObf::get_badge($institution, $badgeid);
 
 $pagestrings = array(
@@ -66,16 +67,11 @@ if ($badge !== false) {
 
 $smarty->display('interaction:obf:issue.tpl');
 
-function issuance_validate(Pieform $form, $values) {
-    global $badgeid;
-    $badgeid = $values['badge'];
-}
-
 function issuance_submit(Pieform $form, $values) {
-    global $SESSION, $currentpath, $USER;
+    global $SESSION, $currentpath, $USER, $institution;
 
     try {
-        PluginInteractionObf::issue_badge($USER, GROUP, $values['badge'],
+        PluginInteractionObf::issue_badge($USER, $institution, GROUP, $values['badge'],
                 $values['users'], $values['issued'], $values['expires'],
                 $values['subject'], $values['body'], $values['footer']);
 

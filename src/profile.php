@@ -26,7 +26,7 @@
  *
  */
 define('INTERNAL', 1);
-define('MENUITEM', 'profile/backpack');
+define('MENUITEM', 'settings/backpack');
 
 require(dirname(dirname(dirname(__FILE__)))) . '/init.php';
 

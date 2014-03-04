@@ -70,7 +70,7 @@ class PluginInteractionObf extends PluginInteraction {
             $obfheaddata = '';
             $menuexists = defined('MENUITEM');
             $isgrouppage = $menuexists && strpos(MENUITEM, 'groups/') === 0;
-            $isprofilepage = $menuexists && strpos(MENUITEM, 'profile/') === 0;
+            $isprofilepage = $menuexists && strpos(MENUITEM, 'settings/') === 0;
             $canissuebadges = self::user_can_issue_badges($USER);
             $groupid = defined('GROUP') ? (int) GROUP : null;
 
@@ -163,6 +163,17 @@ HTML;
     }
 
     /**
+     * Returns all the institutions in which the user can issue badges.
+     * 
+     * @param stdClass $user The user object.
+     * @return string[] The id's of the institutions.
+     */
+    public static function get_issuable_institutions($user) {
+        return get_column('interaction_obf_issuer', 'institution', 'usr',
+                $user->id);
+    }
+
+    /**
      * Returns the OBF client id from the plugin config.
      * 
      * @param string $institution The institution id.
@@ -203,7 +214,7 @@ HTML;
      * @param string $institution The institution id.
      * @return stdClass[] An array of badge objects.
      */
-    public static function get_badges($institution) {
+    public static function get_institution_badges($institution) {
         // Check cache first.
         if (isset(self::$badgecache[$institution])) {
             return self::$badgecache[$institution];
@@ -222,6 +233,7 @@ HTML;
 
                 foreach ($badges as &$badge) {
                     $badge->categoryjson = json_encode($badge->category);
+                    $badge->institution = $institution;
                 }
 
                 self::$badgecache[$institution] = $badges;
@@ -235,25 +247,53 @@ HTML;
     }
 
     /**
+     * Returns the badges of a single institution or multiple institutions from
+     * the API (or cache if exists).
+     * 
+     * @param string|string[] $institution The institution id or an array of
+     *      institution ids.
+     * @return stdClass[] An array of badge objects.
+     */
+    public static function get_badges($institutions) {
+        if (!is_array($institutions)) {
+            $institutions = array($institutions);
+        }
+
+        $badges = array();
+
+        foreach ($institutions as $institution) {
+            $badges = array_merge($badges,
+                    self::get_institution_badges($institution));
+        }
+
+        return $badges;
+    }
+
+    /**
      * Returns the HTML for list of badges.
      * 
-     * @param string $institution The id of the institution.
+     * @param string|string[] $institutions The id of the institution or an
+     *      array of institution ids.
      * @param int $group The group id.
      * @param type $context
      * @return string The HTML markup.
      */
-    public static function get_badgelist($institution, $group = null,
+    public static function get_badgelist($institutions, $group = null,
                                          $context = null) {
+        $institutions = is_array($institutions) ? $institutions : array($institutions);
         $categories = array();
-        $badges = self::get_badges($institution);
+        $badges = self::get_badges($institutions);
         $sm = smarty_core();
 
         if ($badges !== false) {
-            $clientid = self::get_client_id($institution);
-            $categories = self::get_categories($institution, $clientid);
+            foreach ($institutions as $institution) {
+                $clientid = self::get_client_id($institution);
+                $categories = array_merge(self::get_categories($institution,
+                                $clientid), $categories);
+            }
         }
 
-        $sm->assign('institution', $institution);
+        $sm->assign('institution', $institutions);
         $sm->assign('badges', $badges);
         $sm->assign('categories', $categories);
         $sm->assign('group', $group);
@@ -318,12 +358,44 @@ HTML;
      */
     public static function get_group_events($groupid, $badgeid = null,
                                             $offset = 0, $limit = 10) {
-        $institution = self::get_group_institution($groupid);
-        $events = self::get_events($institution,
-                        self::get_api_consumer_id($groupid), $badgeid, $offset,
-                        $limit);
+        global $USER;
+//        $institution = self::get_group_institution($groupid);
+        $institutions = self::get_issuable_institutions($USER);
+        $events = array();
+
+        foreach ($institutions as $institution) {
+            $events = array_merge($events,
+                    self::get_events($institution,
+                            self::get_api_consumer_id($groupid), $badgeid,
+                            $offset, $limit));
+        }
 
         return $events;
+    }
+
+    /**
+     * Returns the number of events of an institution, multiple institutions
+     * or a group.
+     * 
+     * @param string|array $institution The institution id or an array of
+     *      institution ids.
+     * @param int $groupid The id of the group. If set, then the event count of
+     *      the selected group is returned.
+     * @param string $badgeid The badge id. If set, then the event count of
+     *      the selected badge is returned (in selected institution/group).
+     * @return int|false The number of events or false in case of an error.
+     */
+    public static function get_event_count($institution, $groupid = null,
+                                           $badgeid = null) {
+        $eventcount = 0;
+        $institutions = is_array($institution) ? $institution : array($institution);
+
+        foreach ($institutions as $inst) {
+            $eventcount += self::get_institution_event_count($inst, $groupid,
+                            $badgeid);
+        }
+
+        return $eventcount;
     }
 
     /**
@@ -336,8 +408,9 @@ HTML;
      *      the selected badge is returned (in selected institution/group).
      * @return int|false The number of events or false in case of an error.
      */
-    public static function get_event_count($institution, $groupid = null,
-                                           $badgeid = null) {
+    public static function get_institution_event_count($institution,
+                                                       $groupid = null,
+                                                       $badgeid = null) {
         $curlopts = self::get_curl_opts($institution);
         $clientid = self::get_client_id($institution);
 
@@ -357,6 +430,34 @@ HTML;
         $data = json_decode($resp->data);
 
         return $data->result_count;
+    }
+
+    /**
+     * Returns the HTML for a list of events.
+     * 
+     * @param string[] $institutions The institutions, whose events we're displaying.
+     * @param int $groupId The id of the selected group.
+     * @param string $currentpath The current relative path.
+     * @param int $offset The start index of the event list.
+     * @return string The HTML markup for the list.
+     */
+    public static function get_eventlist($institutions, $groupId, $currentpath,
+            $offset) {
+        $eventcount = PluginInteractionObf::get_event_count($institutions, $groupId);
+        $pagination = build_pagination(array(
+            'url' => get_config('wwwroot') . $currentpath . '&page=history',
+            'count' => $eventcount,
+            'limit' => EVENTS_PER_PAGE,
+            'offset' => $offset
+        ));
+        $events = PluginInteractionObf::get_group_events(GROUP, null, $offset,
+                        EVENTS_PER_PAGE);
+        $sm = smarty_core();
+        $sm->assign('events', $events);
+        $sm->assign('pagination', $pagination['html']);
+        $content = $sm->fetch('interaction:obf:events.tpl');
+        
+        return $content;
     }
 
     /**
@@ -517,6 +618,7 @@ HTML;
      * Issues a badge through the OBF API.
      * 
      * @param stdClass $user The user who is issuing the badge.
+     * @param string $institution The institution that owns the badge.
      * @param int $groupid The id of the group in which context the badge is issued.
      * @param string $badgeid The id of the issued badge.
      * @param int[] $userids The ids of the users who are receiving the badge.
@@ -529,12 +631,12 @@ HTML;
      * @throws RemoteServerException If something goes wrong while issuing the
      *      badge.
      */
-    public static function issue_badge($user, $groupid, $badgeid, $userids,
-                                       $issuedat, $expiresat, $subject, $body,
-                                       $footer) {
+    public static function issue_badge($user, $institution, $groupid, $badgeid,
+                                       $userids, $issuedat, $expiresat,
+                                       $subject, $body, $footer) {
         require_once('activity.php');
 
-        $institution = self::get_group_institution($groupid);
+//        $institution = self::get_group_institution($groupid);
         $emails = self::get_backpack_emails($userids);
         $logentry = new stdClass();
         $logentry->groupid = $groupid;
@@ -722,7 +824,8 @@ SQL;
         $pubkey = mahara_http_request($curlopts);
 
         if ($pubkey->data === false || $pubkey->info['http_code'] !== 200) {
-            log_warn('Error while fetching public key: ' . var_export($pubkey, true));
+            log_warn('Error while fetching public key: ' . var_export($pubkey,
+                            true));
             throw new Exception(get_string('tokenerror', 'interaction.obf'));
         }
 
