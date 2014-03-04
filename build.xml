@@ -1,22 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="OBF-Mahara" default="build" basedir="." description="OBF plugin for Mahara">
     
-<!--    <if>
-        <not>
-            <isset property="build.env"/>
-        </not>
-        <then>
-            <property name="build.env" value="kyvytfi"/>
-        </then>
-    </if>-->
-    
     <property name="plugindir" value="/home/olli/Projects/kyvytfi/htdocs/interaction"/>
     <property name="srcdir" value="src"/>
     <property name="testdir" value="tests/phpunit"/>
-    <property name="builddir" value="build"/>
+    <property name="builddir" value="build/src"/>
     <property file="build.properties"/>    
-    <!--<property file="${builddir}/default.properties"/>-->
-    <!--<property file="${builddir}/${build.env}.properties"/>-->
     
     <fileset dir="${srcdir}" id="srcfiles">
         <include name="**"/>
@@ -26,8 +15,7 @@
     <target name="deploy-local" depends="build">
         <mkdir dir="${local.path}"/>
         <copy todir="${local.path}" overwrite="true" >
-            <!--<fileset refid="${builddir}/${build.env}"/>-->
-            <fileset dir="${builddir}/${build.env}">
+            <fileset dir="${builddir}">
                 <include name="**"/>
                 <exclude name="pki/*"/>
             </fileset>
@@ -36,8 +24,8 @@
 
     <target name="build">
         <echo msg="Copying the files to target directory..."/>
-        <mkdir dir="${builddir}/${build.env}"/>
-        <copy todir="${builddir}/${build.env}" overwrite="true">
+        <mkdir dir="${builddir}"/>
+        <copy todir="${builddir}" overwrite="true">
             <fileset refid="srcfiles"/>
             <filterchain>
                 <replacetokens begintoken="%%" endtoken="%%">

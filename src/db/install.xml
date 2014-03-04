@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <XMLDB PATH="lib/db" VERSION="20060926" COMMENT="XMLDB file for core Mahara tables"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../lib/xmldb/xmldb.xsd"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../lib/xmldb/xmldb.xsd"
 >
     <TABLES>
         
@@ -15,28 +15,28 @@
                 <KEY NAME="institution" TYPE="foreign" FIELDS="institution" REFTABLE="institution" REFFIELDS="name"/>
             </KEYS>
         </TABLE>
+    
+        <TABLE NAME="interaction_obf_usr_backpack">
+            <FIELDS>
+                <FIELD NAME="usr" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="usrpk" TYPE="primary" FIELDS="usr"/>
+            </KEYS>
+        </TABLE>
+    
+        <TABLE NAME="interaction_obf_badge_email">
+            <FIELDS>
+                <FIELD NAME="badgeid" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="body" TYPE="text" LENGTH="big" NOTNULL="true"/>
+                <FIELD NAME="footer" TYPE="text" LENGTH="big" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="badgeidpk" TYPE="primary" FIELDS="badgeid"/>
+            </KEYS>
+        </TABLE>
+        
     </TABLES>
-    
-    <TABLE NAME="interaction_obf_usr_backpack">
-        <FIELDS>
-            <FIELD NAME="usr" TYPE="int" LENGTH="10" NOTNULL="true"/>
-            <FIELD NAME="email" TYPE="char" LENGTH="255" NOTNULL="true"/>
-        </FIELDS>
-        <KEYS>
-            <KEY NAME="usrpk" TYPE="primary" FIELDS="usr"/>
-        </KEYS>
-    </TABLE>
-    
-    <TABLE NAME="interaction_obf_badge_email">
-        <FIELDS>
-            <FIELD NAME="badgeid" TYPE="char" LENGTH="255" NOTNULL="true"/>
-            <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true"/>
-            <FIELD NAME="body" TYPE="text" LENGTH="big" NOTNULL="true"/>
-            <FIELD NAME="footer" TYPE="text" LENGTH="big" NOTNULL="true"/>
-        </FIELDS>
-        <KEYS>
-            <KEY NAME="badgeidpk" TYPE="primary" FIELDS="badgeid"/>
-        </KEYS>
-    </TABLE>
-    
 </XMLDB>

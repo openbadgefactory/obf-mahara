@@ -79,7 +79,8 @@ $string['issuancefailed'] = 'Badge issuance failed. Please try again later.';
 $string['issuebadge'] = 'Issue badge';
 $string['issuedat'] = 'Issued at';
 $string['issuetoall'] = 'Select all >';
-$string['noevents'] = 'This badge hasn\'t been issued yet.';
+$string['nobadges'] = 'No badges created yet.';
+$string['noevents'] = 'No issuance events yet.';
 $string['notadminforinstitution'] = 'Only the institution admin can perform'
         . ' administration tasks for this plugin.';
 $string['numberofrecipients'] = '%s recipients';
