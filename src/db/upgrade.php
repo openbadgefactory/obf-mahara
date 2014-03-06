@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Mahara: Electronic portfolio, weblog, resume builder and social networking
  * Copyright (C) 2006-2009 Catalyst IT Ltd and others; see:
@@ -62,6 +61,28 @@ function xmldb_interaction_obf_upgrade($oldversion = 0) {
         if (!create_table($table)) {
             throw new SQLException('Table "' . $table->name . '" could not be created, check log for errors.');
         }
+    }
+
+    // Update foreign key constraints
+    if ($oldversion < 2014030500) {
+        execute_sql(
+                'ALTER TABLE {interaction_obf_issuer} '
+                . 'DROP FOREIGN KEY inteobfissu_ins_fk');
+        execute_sql(
+                'ALTER TABLE {interaction_obf_issuer} '
+                . 'DROP FOREIGN KEY inteobfissu_usr_fk');
+        execute_sql(
+                'ALTER TABLE {interaction_obf_issuer} '
+                . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                . 'REFERENCES {institution} (name) ON DELETE CASCADE');
+        execute_sql(
+                'ALTER TABLE {interaction_obf_issuer} '
+                . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                . 'REFERENCES {usr} (id) ON DELETE CASCADE');
+        execute_sql(
+                'ALTER TABLE {interaction_obf_usr_backpack}'
+                . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                . 'REFERENCES {usr} (id) ON DELETE CASCADE');
     }
 
     return true;
