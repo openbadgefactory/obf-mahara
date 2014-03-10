@@ -97,7 +97,7 @@ class PluginInteractionObf extends PluginInteraction {
                     )
                 ));
 
-                $addcss = (MENUITEM != 'profile/backpack');
+                $addcss = (MENUITEM != 'settings/backpack');
                 $obfheaddata .= self::get_assets($THEME, 'init_profile',
                                 array($userid, $jsonopts), $addcss);
             }
