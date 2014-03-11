@@ -146,3 +146,17 @@ function institutionissuers_submit(Pieform $form, $values) {
 
     redirect($currentpath);
 }
+
+function disconnect_submit(Pieform $form, $values) {
+    global $currentpath, $institution, $USER, $SESSION;
+
+    if (!$USER->can_edit_institution($institution)) {
+        $SESSION->add_error_msg(get_string('notadminforinstitution',
+                        'interaction.obf'));
+    }
+    else {
+        PluginInteractionObf::deauthenticate($institution);
+    }
+
+    redirect($currentpath);
+}
