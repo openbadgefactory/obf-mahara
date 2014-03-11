@@ -618,7 +618,7 @@ HTML;
      */
     public static function get_eventlist($institutions, $groupId, $currentpath,
             $offset) {
-        $eventcount = PluginInteractionObf::get_event_count($institutions,
+        $eventcount = self::get_event_count($institutions,
                         $groupId);
         $pagination = build_pagination(array(
             'url' => get_config('wwwroot') . $currentpath . '&page=history',
@@ -626,7 +626,7 @@ HTML;
             'limit' => EVENTS_PER_PAGE,
             'offset' => $offset
         ));
-        $events = PluginInteractionObf::get_group_events(GROUP, null, $offset,
+        $events = static::get_group_events(GROUP, null, $offset,
                         EVENTS_PER_PAGE);
         $sm = smarty_core();
         $sm->assign('events', $events);
@@ -689,7 +689,7 @@ HTML;
      * @return int[] The ids of the ignored users.
      */
     public static function get_ignored_users($groupid, $badgeid) {
-        $events = self::get_group_events($groupid, $badgeid);
+        $events = static::get_group_events($groupid, $badgeid);
         $ignored = array();
 
         if ($events !== false) {
@@ -711,23 +711,27 @@ HTML;
                         array_fill(0, count($uniquerecipients), '?'));
                 $sql = <<<SQL
 SELECT
-    u.id, COALESCE(bp.email, u.email) AS backpack_email
+    u.id, u.email, bp.email
 FROM
     {usr} u
 LEFT JOIN
     {interaction_obf_usr_backpack} bp ON u.id = bp.usr
-HAVING
-    backpack_email IN ($placeholders)
+WHERE
+    u.email IN ($placeholders) OR bp.email IN ($placeholders)
 SQL;
 
-                $records = get_records_sql_assoc($sql, $uniquerecipients);
+                // Since we use $placeholders twice in the prepared statement,
+                // we need to double the $uniquerecipients array (twice the
+                // placeholders, twice the matching values):
+                // ... WHERE u.email IN (?,?) OR bp.email IN (?,?) => 4 items total
+                $records = get_records_sql_assoc($sql, array_merge($uniquerecipients, $uniquerecipients));
 
                 foreach ($records as $record) {
                     $ignored[] = $record->id;
                 }
             }
         }
-
+        
         return $ignored;
     }
 
