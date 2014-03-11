@@ -1203,16 +1203,6 @@ SQL;
     }
 
     /**
-     * Returns the institution the selected group belongs to.
-     * 
-     * @param int $groupid The id of the group.
-     * @return string The institution id.
-     */
-    public static function get_group_institution($groupid) {
-        return get_field('group', 'institution', 'id', $groupid);
-    }
-
-    /**
      * Returns the absolute path of the institution's public key file.
      * 
      * @param string $institution The institution id.
