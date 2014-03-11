@@ -102,6 +102,8 @@ abstract class ObfBase extends PluginInteraction {
                                 array($userid, $jsonopts), $addcss);
             }
 
+            $obfheaddata .= static::get_head_data(MENUITEM, $menuexists, $userid, $THEME);
+            
             $HEADDATA['interaction.obf'] = $obfheaddata;
         }
 
@@ -110,6 +112,10 @@ abstract class ObfBase extends PluginInteraction {
         static::navigation_hook($USER, $items);
 
         return $items;
+    }
+    
+    protected static function get_head_data($menuitem, $menuexists, $userid, $theme) {
+        return '';
     }
     
     protected static function navigation_hook($user, &$items) {
@@ -192,6 +198,36 @@ HTML;
     public static function stream_to_json($str) {
         $json = '[' . implode(',', array_filter(explode("\r\n", $str))) . ']';
         return json_decode($json);
+    }
+    
+    /**
+     * Returns the HTML for list of badges.
+     * 
+     * @param string|string[] $institutions The id of the institution or an
+     *      array of institution ids.
+     * @param int $group The group id.
+     * @return string The HTML markup.
+     */
+    public static function get_badgelist($institutions, $group = null) {
+        $institutions = is_array($institutions) ? $institutions : array($institutions);
+        $categories = array();
+        $badges = self::get_badges($institutions);
+        $sm = smarty_core();
+
+        if ($badges !== false) {
+            foreach ($institutions as $institution) {
+                $clientid = self::get_client_id($institution);
+                $categories = array_merge(self::get_categories($institution,
+                                $clientid), $categories);
+            }
+        }
+
+        $sm->assign('institution', $institutions);
+        $sm->assign('badges', $badges);
+        $sm->assign('categories', $categories);
+        $sm->assign('group', $group);
+
+        return $sm->fetch('interaction:obf:badgelist.tpl');
     }
     
     /**
