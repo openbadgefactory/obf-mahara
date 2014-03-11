@@ -72,7 +72,7 @@ if (empty($institution)) {
 if (empty($content)) {
     switch ($page) {
         case 'settings':
-            $content = PluginInteractionObf::get_settings_form($institution);
+            $content .= PluginInteractionObf::get_settings_form($institution);
             break;
         case 'privileges':
             $content = PluginInteractionObf::get_privileges_form($institution);
