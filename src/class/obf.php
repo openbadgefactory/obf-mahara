@@ -56,7 +56,7 @@ class PluginInteractionObf extends ObfBase {
         return $events;
     }
     
-    protected static function navigation_hook($user, &$items) {
+    public static function navigation_hook($user, &$items) {
         // Add our page link to institution admin.
         if ($user->is_institutional_admin()) {
             $items['manageinstitutions/obf'] = array(
