@@ -31,10 +31,10 @@ $string['alreadyauthenticated'] = 'Connection to Open Badge Factory is up and wo
 $string['apierror'] = 'Fetching data from Open Badge Factory failed. Please try'
         . ' again later.';
 $string['authenticate'] = 'Authenticate';
-$string['authenticationhelp'] = '<p>Certificate needs to be generated before'
+$string['authenticationhelp'] = 'Certificate needs to be generated before'
         . ' Open Badge Factory can be used within the institution. Log in to'
         . ' Open Badge Factory to get the request token and paste it to the'
-        . ' field below.</p>';
+        . ' field below.';
 $string['authenticationsuccessful'] = 'Authentication successful.';
 $string['backpackconnectedhelp'] = 'Connection to Mozilla Backpack is '
         . 'established using your email address <strong>%s</strong>.';
@@ -57,6 +57,8 @@ $string['badgesuccessfullyissued'] = 'Badge was successfully issued.';
 $string['certdirectorynotwritable'] = 'Saving certificate failed. The system'
         . ' admin has to make sure that the directory for the certificate files'
         . ' is created and that it is writable by the server process.';
+$string['confirmdeauthentication'] = 'Are you sure you want to deauthenticate '
+        . 'the selected institution?';
 $string['deauthenticate'] = 'Deauthenticate';
 $string['disconnectbackpack'] = 'Disconnect';
 $string['email'] = 'Email message';

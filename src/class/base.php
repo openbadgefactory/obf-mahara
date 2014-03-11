@@ -1130,6 +1130,8 @@ SQL;
 
         // Institution is not yet authenticated, show the authentication form.
         if (!$authenticated) {
+            $content .= '<div class="info">' .
+                    get_string('authenticationhelp', 'interaction.obf') . '</div>';
             $formdefs = array(
                 'name' => 'token',
                 'renderer' => 'table',
@@ -1154,6 +1156,8 @@ SQL;
             $formdefs = array(
                 'name' => 'disconnect',
                 'renderer' => 'table',
+                'jsform' => false,
+                'presubmitcallback' => null,
                 'elements' => array(
                     'submit' => array(
                         'type' => 'submit',

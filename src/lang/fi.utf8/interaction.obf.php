@@ -31,9 +31,9 @@ $string['alreadyauthenticated'] = 'Yhteys Open Badge Factoryyn on jo muodostettu
 $string['apierror'] = 'Tietojen haku Open Badge Factorysta epäonnistui. Yritä'
         . ' hetken kuluttua uudelleen.';
 $string['authenticate'] = 'Suorita valtuutus';
-$string['authenticationhelp'] = '<p>Open Badge Factoryn käyttö ei ole mahdollista'
+$string['authenticationhelp'] = 'Open Badge Factoryn käyttö ei ole mahdollista'
         . ' ennen sertifikaatin luontia. Kirjaudu Open Badge Factoryyn luodaksesi'
-        . ' valtuutusavaimen ja liitä se oheiseen tekstikenttään.</p>';
+        . ' valtuutusavaimen ja liitä se oheiseen tekstikenttään.';
 $string['authenticationsuccessful'] = 'Valtuutus onnistui.';
 $string['backpackconnectedhelp'] = 'Yhteys Mozilla Backpackiin on muodostettu'
         . ' käyttäen sähköpostiosoitettasi <strong>%s</strong>.';
@@ -56,6 +56,7 @@ $string['badgesuccessfullyissued'] = 'Osaamismerkin myöntäminen onnistui.';
 $string['certdirectorynotwritable'] = 'Sertifikaatin tallennus epäonnistui.'
         . ' Järjestelmän ylläpitäjän tulee tarkistaa, että hakemisto sertifikaateille'
         . ' on luotu ja että palvelinprosessilla on siihen kirjoitusoikeudet.';
+$string['confirmdeauthentication'] = 'Oletko varma, että haluat katkaista valtuutuksen?';
 $string['deauthenticate'] = 'Katkaise valtuutus';
 $string['disconnectbackpack'] = 'Katkaise yhteys';
 $string['email'] = 'Sähköpostiviesti';
