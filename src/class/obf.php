@@ -31,58 +31,6 @@ require(dirname(__FILE__) . '/base.php');
 
 class PluginInteractionObf extends ObfBase {
 
-    protected static function navigation_hook($user, &$items) {
-        // Add our page link to institution admin.
-        if ($user->is_institutional_admin()) {
-            $items['manageinstitutions/obf'] = array(
-                'path' => 'manageinstitutions/obf',
-                'url' => 'interaction/obf/institution.php',
-                'title' => get_string('openbadgefactory', 'interaction.obf'),
-                'weight' => 10);
-        }
-    }
-
-    /**
-     * Returns all the institutions in which the user can issue badges.
-     * 
-     * @param stdClass $user The user object.
-     * @return string[] The id's of the institutions.
-     */
-    public static function get_issuable_institutions($user) {
-        return get_column('interaction_obf_issuer', 'institution', 'usr',
-                $user->id);
-    }
-
-    /**
-     * Returns the HTML for list of badges.
-     * 
-     * @param string|string[] $institutions The id of the institution or an
-     *      array of institution ids.
-     * @param int $group The group id.
-     * @return string The HTML markup.
-     */
-    public static function get_badgelist($institutions, $group = null) {
-        $institutions = is_array($institutions) ? $institutions : array($institutions);
-        $categories = array();
-        $badges = self::get_badges($institutions);
-        $sm = smarty_core();
-
-        if ($badges !== false) {
-            foreach ($institutions as $institution) {
-                $clientid = self::get_client_id($institution);
-                $categories = array_merge(self::get_categories($institution,
-                                $clientid), $categories);
-            }
-        }
-
-        $sm->assign('institution', $institutions);
-        $sm->assign('badges', $badges);
-        $sm->assign('categories', $categories);
-        $sm->assign('group', $group);
-
-        return $sm->fetch('interaction:obf:badgelist.tpl');
-    }
-
     /**
      * Returns the issuance events of a single group.
      * 
@@ -165,5 +113,27 @@ class PluginInteractionObf extends ObfBase {
         $data = json_decode($resp->data);
 
         return $data->result_count;
+    }
+    
+    protected static function navigation_hook($user, &$items) {
+        // Add our page link to institution admin.
+        if ($user->is_institutional_admin()) {
+            $items['manageinstitutions/obf'] = array(
+                'path' => 'manageinstitutions/obf',
+                'url' => 'interaction/obf/institution.php',
+                'title' => get_string('openbadgefactory', 'interaction.obf'),
+                'weight' => 10);
+        }
+    }
+
+    /**
+     * Returns all the institutions in which the user can issue badges.
+     * 
+     * @param stdClass $user The user object.
+     * @return string[] The id's of the institutions.
+     */
+    public static function get_issuable_institutions($user) {
+        return get_column('interaction_obf_issuer', 'institution', 'usr',
+                $user->id);
     }
 }

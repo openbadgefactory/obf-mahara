@@ -41,7 +41,6 @@ $group = group_current_group();
 define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 
 $badgeid = param_variable('badgeid');
-//$institution = PluginInteractionObf::get_group_institution(GROUP);
 $institution = param_variable('institution');
 $currentpath = '/interaction/obf/issue.php?institution=' . $institution . '&badgeid=' . $badgeid . '&group=' . GROUP;
 $badge = PluginInteractionObf::get_badge($institution, $badgeid);
