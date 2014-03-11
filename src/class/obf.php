@@ -55,65 +55,6 @@ class PluginInteractionObf extends ObfBase {
 
         return $events;
     }
-
-    /**
-     * Returns the number of events of an institution, multiple institutions
-     * or a group.
-     * 
-     * @param string|array $institution The institution id or an array of
-     *      institution ids.
-     * @param int $groupid The id of the group. If set, then the event count of
-     *      the selected group is returned.
-     * @param string $badgeid The badge id. If set, then the event count of
-     *      the selected badge is returned (in selected institution/group).
-     * @return int|false The number of events or false in case of an error.
-     */
-    public static function get_event_count($institution, $groupid = null,
-                                           $badgeid = null) {
-        $eventcount = 0;
-        $institutions = is_array($institution) ? $institution : array($institution);
-
-        foreach ($institutions as $inst) {
-            $eventcount += self::get_institution_event_count($inst, $groupid,
-                            $badgeid);
-        }
-
-        return $eventcount;
-    }
-
-    /**
-     * Returns the number of events of an institution or a group.
-     * 
-     * @param string $institution The institution id.
-     * @param int $groupid The id of the group. If set, then the event count of
-     *      the selected group is returned.
-     * @param string $badgeid The badge id. If set, then the event count of
-     *      the selected badge is returned (in selected institution/group).
-     * @return int|false The number of events or false in case of an error.
-     */
-    public static function get_institution_event_count($institution,
-                                                       $groupid = null,
-                                                       $badgeid = null) {
-        $curlopts = self::get_curl_opts($institution);
-        $clientid = self::get_client_id($institution);
-
-        if (empty($clientid)) {
-            return false;
-        }
-
-        $aci = self::get_api_consumer_id($groupid);
-        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid . '?api_consumer_id=' .
-                $aci . '&count_only=1';
-
-        if (!is_null($badgeid)) {
-            $curlopts[CURLOPT_URL] .= '&badge_id=' . $badgeid;
-        }
-
-        $resp = mahara_http_request($curlopts);
-        $data = json_decode($resp->data);
-
-        return $data->result_count;
-    }
     
     protected static function navigation_hook($user, &$items) {
         // Add our page link to institution admin.
@@ -136,4 +77,9 @@ class PluginInteractionObf extends ObfBase {
         return get_column('interaction_obf_issuer', 'institution', 'usr',
                 $user->id);
     }
+
+    public static function get_head_data($menuitem, $menuexists, $userid, $theme) {
+        return '';
+    }
+
 }
