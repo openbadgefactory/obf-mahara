@@ -56,6 +56,7 @@ $string['badgesuccessfullyissued'] = 'Osaamismerkin myöntäminen onnistui.';
 $string['certdirectorynotwritable'] = 'Sertifikaatin tallennus epäonnistui.'
         . ' Järjestelmän ylläpitäjän tulee tarkistaa, että hakemisto sertifikaateille'
         . ' on luotu ja että palvelinprosessilla on siihen kirjoitusoikeudet.';
+$string['deauthenticate'] = 'Katkaise valtuutus';
 $string['disconnectbackpack'] = 'Katkaise yhteys';
 $string['email'] = 'Sähköpostiviesti';
 $string['emailbody'] = 'Viestin alkuosa';

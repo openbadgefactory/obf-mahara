@@ -57,6 +57,7 @@ $string['badgesuccessfullyissued'] = 'Badge was successfully issued.';
 $string['certdirectorynotwritable'] = 'Saving certificate failed. The system'
         . ' admin has to make sure that the directory for the certificate files'
         . ' is created and that it is writable by the server process.';
+$string['deauthenticate'] = 'Deauthenticate';
 $string['disconnectbackpack'] = 'Disconnect';
 $string['email'] = 'Email message';
 $string['emailbody'] = 'Email body';

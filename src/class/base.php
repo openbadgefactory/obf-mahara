@@ -28,8 +28,11 @@
 defined('INTERNAL') || die();
 
 interface ObfInterface {
+
     static function get_head_data($menuitem, $menuexists, $userid, $theme);
+
     static function navigation_hook($user, &$items);
+
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 }
 
@@ -49,7 +52,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
      * @var stdClass[]
      */
     protected static $badgecache = array();
-    
+
     /**
      * The hook that extends the main navigation. We make some dirty tricks here
      * to get our links to show in the menu.
@@ -108,8 +111,9 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
                                 array($userid, $jsonopts), $addcss);
             }
 
-            $obfheaddata .= static::get_head_data(MENUITEM, $menuexists, $userid, $THEME);
-            
+            $obfheaddata .= static::get_head_data(MENUITEM, $menuexists,
+                            $userid, $THEME);
+
             $HEADDATA['interaction.obf'] = $obfheaddata;
         }
 
@@ -119,7 +123,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
 
         return $items;
     }
-    
+
     /**
      * Returns the HTML-markup for the document head. Markup includes our
      * JavaScript file and stylesheet and a call to our selected init-function.
@@ -152,7 +156,7 @@ HTML;
 
         return $obfheaddata;
     }
-    
+
     /**
      * Whether the user can issue badges or not.
      * 
@@ -162,7 +166,6 @@ HTML;
     public static function user_can_issue_badges($user) {
         return record_exists('interaction_obf_issuer', 'usr', $user->id);
     }
-    
 
     /**
      * Returns the OBF client id from the plugin config.
@@ -177,7 +180,7 @@ HTML;
 
         return $clientid;
     }
-    
+
     /**
      * Returns the name of the configuration key used to store the client id.
      * 
@@ -198,7 +201,7 @@ HTML;
         $json = '[' . implode(',', array_filter(explode("\r\n", $str))) . ']';
         return json_decode($json);
     }
-    
+
     /**
      * Returns the HTML for list of badges.
      * 
@@ -228,7 +231,7 @@ HTML;
 
         return $sm->fetch('interaction:obf:badgelist.tpl');
     }
-    
+
     /**
      * Returns the institution badges from the API (or cache if exists).
      * 
@@ -266,7 +269,7 @@ HTML;
 
         return $badges;
     }
-    
+
     /**
      * Returns the badges of a single institution or multiple institutions from
      * the API (or cache if exists).
@@ -289,7 +292,7 @@ HTML;
 
         return $badges;
     }
-    
+
     /**
      * Returns the badge categories from the OBF API.
      * 
@@ -307,7 +310,7 @@ HTML;
 
         return $categories;
     }
-    
+
     /**
      * Returns the data of a single badge from the OBF API.
      * 
@@ -334,7 +337,7 @@ HTML;
 
         return $badgejson;
     }
-    
+
     /**
      * Returns the institution events from the OBF API.
      * 
@@ -374,7 +377,7 @@ HTML;
 
         return $eventjson;
     }
-    
+
     /**
      * Returns the badge image url (or data url).
      * 
@@ -393,7 +396,7 @@ HTML;
 
         return null;
     }
-    
+
     /**
      * Saves the badge email template to database.
      * 
@@ -416,7 +419,7 @@ HTML;
         ensure_record_exists('interaction_obf_badge_email', $existingrecord,
                 $updatedrecord);
     }
-    
+
     /**
      * Returns the badge email template. Tries to get the local version first
      * from the database. If not found, gets the template from the OBF API.
@@ -457,7 +460,7 @@ HTML;
 
         return array('body' => $body, 'subject' => $subject, 'footer' => $footer);
     }
-    
+
     /**
      * Returns the names of the selected users.
      * 
@@ -488,7 +491,7 @@ HTML;
     public static function get_api_consumer_id($groupid = null) {
         return (is_null($groupid) ? '' : API_CONSUMER_ID . '_group_' . $groupid);
     }
-    
+
     /**
      * Issues a badge through the OBF API.
      * 
@@ -547,7 +550,7 @@ HTML;
 
         return true;
     }
-    
+
     /**
      * Returns the number of events of an institution or a group.
      * 
@@ -581,7 +584,7 @@ HTML;
 
         return $data->result_count;
     }
-    
+
     /**
      * Returns the number of events of an institution, multiple institutions
      * or a group.
@@ -606,7 +609,7 @@ HTML;
 
         return $eventcount;
     }
-    
+
     /**
      * Returns the HTML for a list of events.
      * 
@@ -617,25 +620,23 @@ HTML;
      * @return string The HTML markup for the list.
      */
     public static function get_eventlist($institutions, $groupId, $currentpath,
-            $offset) {
-        $eventcount = self::get_event_count($institutions,
-                        $groupId);
+                                         $offset) {
+        $eventcount = self::get_event_count($institutions, $groupId);
         $pagination = build_pagination(array(
             'url' => get_config('wwwroot') . $currentpath . '&page=history',
             'count' => $eventcount,
             'limit' => EVENTS_PER_PAGE,
             'offset' => $offset
         ));
-        $events = static::get_group_events(GROUP, null, $offset,
-                        EVENTS_PER_PAGE);
+        $events = static::get_group_events(GROUP, null, $offset, EVENTS_PER_PAGE);
         $sm = smarty_core();
         $sm->assign('events', $events);
         $sm->assign('pagination', $pagination['html']);
         $content = $sm->fetch('interaction:obf:events.tpl');
-        
+
         return $content;
     }
-    
+
     /**
      * Sends a notification to the user who has issued a badge.
      * 
@@ -724,14 +725,15 @@ SQL;
                 // we need to double the $uniquerecipients array (twice the
                 // placeholders, twice the matching values):
                 // ... WHERE u.email IN (?,?) OR bp.email IN (?,?) => 4 items total
-                $records = get_records_sql_assoc($sql, array_merge($uniquerecipients, $uniquerecipients));
+                $records = get_records_sql_assoc($sql,
+                        array_merge($uniquerecipients, $uniquerecipients));
 
                 foreach ($records as $record) {
                     $ignored[] = $record->id;
                 }
             }
         }
-        
+
         return $ignored;
     }
 
@@ -1117,6 +1119,7 @@ SQL;
      */
     public static function get_settings_form($institution) {
         $content = '';
+        $formdefs = array();
 
         try {
             $authenticated = self::is_authenticated($institution);
@@ -1125,32 +1128,46 @@ SQL;
             return $content;
         }
 
-        $tokenform = pieform(array(
-            'name' => 'token',
-            'renderer' => 'table',
-            'elements' => array(
-                'token' => array(
-                    'type' => 'textarea',
-                    'title' => get_string('requesttoken', 'interaction.obf'),
-                    'rows' => 5,
-                    'cols' => 80,
-                    'rules' => array('required' => true),
-                    'disabled' => $authenticated
-                ),
-                'submit' => array(
-                    'type' => 'submit',
-                    'disabled' => $authenticated,
-                    'value' => get_string('authenticate', 'interaction.obf')
+        // Institution is not yet authenticated, show the authentication form.
+        if (!$authenticated) {
+            $formdefs = array(
+                'name' => 'token',
+                'renderer' => 'table',
+                'elements' => array(
+                    'token' => array(
+                        'type' => 'textarea',
+                        'title' => get_string('requesttoken', 'interaction.obf'),
+                        'rows' => 5,
+                        'cols' => 80,
+                        'rules' => array('required' => true)
+                    ),
+                    'submit' => array(
+                        'type' => 'submit',
+                        'value' => get_string('authenticate', 'interaction.obf')
+                    )
                 )
-            )
-        ));
+            );
+        }
 
-        if ($authenticated) {
+        // Institution already authenticated, show a button to disconnect.
+        else {
+            $formdefs = array(
+                'name' => 'disconnect',
+                'renderer' => 'table',
+                'elements' => array(
+                    'submit' => array(
+                        'type' => 'submit',
+                        'value' => get_string('deauthenticate',
+                                'interaction.obf')
+                    )
+                )
+            );
+
             $sm = smarty_core();
             $content .= $sm->fetch('interaction:obf:alreadyauthenticated.tpl');
         }
 
-        $content .= $tokenform;
+        $content .= pieform($formdefs);
 
         return $content;
     }
@@ -1291,4 +1308,5 @@ SQL;
     public static function instance_config_save($instance, $values) {
         
     }
+
 }
