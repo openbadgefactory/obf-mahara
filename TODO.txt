@@ -1,0 +1,67 @@
+TODO:
+-----
+
+- Valtuutuksessa paremmat virheilmoitukset, mikä meni pieleen.
+- Tarviiko tehdä obf-luokkaan postinst, jossa tauluille tehdään CASCADE-säännöt
+  ensimmäistä asennusta varten vai meneekö upgrade.php:n mukana?
+- Siirrä pki-hakemisto web-hakemiston ulkopuolelle. Sertifikaatit maharan
+  data-hakemistoon?
+- Tarkista, tarvitseeko sähköpostitemplaten olla instituutiokohtainen vai
+  voiko sama badge olla usealla instituutiolla?
+- Merkin myöntäminen suoraan portfoliosivulta?
+- Yhden merkin myöntämishistorian sivutus ryhmän sisällä
+
+FIXES TO CORE:
+----------------
+
+- /home/olli/Projects/kyvytfi/htdocs/lib/activity.php#421 (Runtime Notice: 
+    Declaration of ActivityTypeUsermessage::update_url() should be compatible with
+    ActivityType::update_url())
+- /home/olli/Projects/kyvytfi/htdocs/notification/lib.php#32 (Static function
+    cannot be abstract)
+
+HACKS:
+------
+
+- Merkkien myöntämistä ei ole mahdollista sisällyttää Jäsenet-sivulle. Linkkiä
+  myöntämissivulle ei ole myöskään mahdollista lisätä ryhmän kontekstivalikkoon
+  (välilehtiin).
+  
+    HACK:
+
+    Pluginin menu_items-hookissa käytetään hyväksi Maharan globaalia
+    $HEADDATA-muuttujaa, joka sisältää sivujen HEAD-tagin sisälle
+    laitettavaa sisältöä. Tässä tapauksessa mikäli kyseessä on sivu
+    "groups/members", HEAD-osaan laitetaan pluginin omat JS- ja CSS-tiedostot,
+    jotka lisäävät sivulle painikkeen merkkien myöntämistä varten.
+
+DONE:
+-----
+
+- Kyvyt-puolella backpack-settings settings-valikkoon?
+- (Ainakin) ryhmäsivuilla css-tiedosto lisätään kahdesti.
+- Verifier-url kovakoodattu verify_backpack_assertion-funktiossa.
+- English-kielitiedosto
+- Show an error if authentication (probably) works, but OBF is down.
+- Älä näytä merkkien myöntösivua, jos yhteys OBF:ään ei futaa.
+- Ota huomioon Kyvyt.fi:n Supervisor-rooli instituution adminin sijaan
+- Toimiiko badge.php Supervisor-käyttäjällä, joka ei ole instituution admin,
+  sillä sivun alussa define('INSTITUTIONALADMIN', 1).
+- Miksi badge.php:ssa näkyy admin-navigointi vaikka mennään supervisorin kautta?
+- Myöntäjän oma nimi pois listalta myöntämissivulla
+- Näytä myöntölistalla vain ne, joille ei ole myönnetty merkkiä (tai on
+  myönnetty, mutta ei ole voimassa)
+- Tallenna ryhmä-id api_consumer_id-tietoon  
+- "Myönnä kaikille ryhmä jäsenille" -toiminto
+- Merkin myöntämishistoria
+- Lähetä Maharan sisäinen viesti myöntäjälle myöntämisen yhteydessä
+- Sähköpostitemplaattien tallennus
+- Näytä OBF-välilehdet valittuina kun ko. sivulla ollaan.
+- Latausindikaattori/kenttien disablointi kun badgen sähköpostitemplatea
+  haetaan merkkiä myönnettäessä (REJECTED, templatea ei haeta enää Ajaxilla)
+- Disable tabs if the institution isn't authenticated yet
+- Sivujen titlet kuntoon
+- Näytä ryhmän myöntämishistoria
+- Organize the plugin code
+- Do not depend on core translations (no get_string('foo', 'admin'))
+- Default Expiration Time, toimiiko (US OPEN) myöntämislomakkeella?
