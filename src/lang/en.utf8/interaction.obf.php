@@ -57,6 +57,13 @@ $string['badgesuccessfullyissued'] = 'Badge was successfully issued.';
 $string['certdirectorynotwritable'] = 'Saving certificate failed. The system'
         . ' admin has to make sure that the directory for the certificate files'
         . ' is created and that it is writable by the server process.';
+$string['certificateisexpiring'] = 'Open Badge Factory client certificate is expiring.';
+$string['certificateisexpiringmessage'] = 'Open Badge Factory client certificate is '
+        . 'expiring in %s days. To renew the certificate, log in to Open Badge '
+        . 'Factory with your organization admin account, generate and copy the '
+        . 'certificate signing request token and paste it to the textarea in the '
+        . 'institution settings page. Read the plugin documentation for detailed '
+        . 'instructions.';
 $string['confirmdeauthentication'] = 'Are you sure you want to deauthenticate '
         . 'the selected institution?';
 $string['deauthenticate'] = 'Deauthenticate';

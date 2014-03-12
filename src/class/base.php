@@ -34,6 +34,8 @@ interface ObfInterface {
     static function navigation_hook($user, &$items);
 
     static function get_group_events($groupid, $badgeid, $offset, $limit);
+
+    static function get_institution_admins($institution);
 }
 
 abstract class ObfBase extends PluginInteraction implements ObfInterface {
@@ -52,6 +54,15 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
      * @var stdClass[]
      */
     protected static $badgecache = array();
+
+    public static function get_cron() {
+        $checkcertage = new stdClass();
+        $checkcertage->callfunction = 'check_certificate_expiration_dates';
+        $checkcertage->hour = '23';
+        $checkcertage->minute = '23';
+
+        return array($checkcertage);
+    }
 
     /**
      * The hook that extends the main navigation. We make some dirty tricks here
@@ -1303,6 +1314,87 @@ SQL;
      */
     public static function get_cert_filename($institution) {
         return __DIR__ . '/../pki/' . $institution . '.pem';
+    }
+
+    /**
+     * Checks every certificate in the system and notifies the institution
+     * admins if the certificate is expiring.
+     */
+    public static function check_certificate_expiration_dates() {
+        require 'activity.php';
+
+        $certfiles = self::get_cert_files();
+
+        foreach ($certfiles as $certfile) {
+            $daysleft = self::get_certificate_days_left($certfile);
+            $donotify = in_array($daysleft, array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
+
+            // Notify only if there's certain amount of days left before the
+            // certification expires.
+            if ($donotify === false) {
+                continue;
+            }
+
+            $institution = basename($certfile, '.pem');
+
+            // Not a good habit to query in a loop, but this is done in a cron
+            // job.
+            $recipients = static::get_institution_admins($institution);
+
+            // We need to send each notification separately, because users can
+            // have different language settings.
+            foreach ($recipients as $userid) {
+                // Yes, yet another query to database. We'll refactor this
+                // later.
+                $lang = get_user_language($userid);
+                $subject = get_string_from_language($lang,
+                        'certificateisexpiring', 'interaction.obf');
+                $message = get_string_from_language($lang,
+                        'certificateisexpiringmessage', 'interaction.obf',
+                        $daysleft);
+                $notification = array('users' => array($userid), 'subject' => $subject,
+                    'message' => $message);
+
+                activity_occurred('maharamessage', $notification);
+            }
+        }
+    }
+
+    /**
+     * Get the number of days left before the certificate expires.
+     * 
+     * @param string $certfile The absolute path of the certificate file.
+     * @return int The number of days left before expiration.
+     */
+    protected static function get_certificate_days_left($certfile) {
+        $expiresin = self::get_certificate_expiration_date($certfile);
+
+        $diff = $expiresin - time();
+        $days = floor($diff / (60 * 60 * 24));
+
+        return $days;
+    }
+
+    /**
+     * Returns all certification files in the system.
+     * 
+     * @return string[] A string of filenames with absolute paths.
+     */
+    protected static function get_cert_files() {
+        return glob(__DIR__ . '/../pki/*.pem');
+    }
+
+    /**
+     * Returns the expiration date of the certificate.
+     * 
+     * @param string $certfile The absolute path of the certificate file.
+     * @return int The expiration date as Unix timestamp.
+     */
+    protected static function get_certificate_expiration_date($certfile) {
+        $cert = file_get_contents($certfile);
+        $ssl = openssl_x509_parse($cert);
+
+        return $ssl['validTo_time_t'];
     }
 
     public static function instance_config_form($group, $instance = null) {

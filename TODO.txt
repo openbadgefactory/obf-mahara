@@ -1,6 +1,11 @@
 TODO:
 -----
 
+- Liian monta SQL-queryä check_certificate_expiration_dates-funktiossa
+  (sisäkkäiset loopit).
+- Ilmoitus instituution supervisorille (tai adminille jos Mahara), kun
+  sertifikaatti on erääntymässä.
+- Admin/supervisor voi valita, mitkä kategoriat ovat myönnettävissä.
 - Valtuutuksessa paremmat virheilmoitukset, mikä meni pieleen.
 - Tarviiko tehdä obf-luokkaan postinst, jossa tauluille tehdään CASCADE-säännöt
   ensimmäistä asennusta varten vai meneekö upgrade.php:n mukana?
