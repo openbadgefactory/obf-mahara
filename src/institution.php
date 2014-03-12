@@ -59,6 +59,11 @@ if ($authenticated) {
     $subpages[] = 'badges';
 }
 
+// If the institution isn't authenticated yet, always show the settings page only.     
+else {
+    $page = 'settings';
+}
+
 $currentpath = '/interaction/obf/institution.php?institution=' . $institution . '&page='
         . $page;
 
