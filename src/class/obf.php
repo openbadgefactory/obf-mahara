@@ -55,7 +55,7 @@ class PluginInteractionObf extends ObfBase {
 
         return $events;
     }
-    
+
     public static function navigation_hook($user, &$items) {
         // Add our page link to institution admin.
         if ($user->is_institutional_admin()) {
@@ -80,6 +80,10 @@ class PluginInteractionObf extends ObfBase {
 
     public static function get_head_data($menuitem, $menuexists, $userid, $theme) {
         return '';
+    }
+
+    public static function get_institution_admins(Institution $institution) {
+        return $institution->admins();
     }
 
 }
