@@ -35,7 +35,7 @@ interface ObfInterface {
 
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 
-    static function get_institution_admins($institution);
+    static function get_institution_admins(Institution $institution);
 }
 
 abstract class ObfBase extends PluginInteraction implements ObfInterface {
@@ -1321,13 +1321,15 @@ SQL;
      * admins if the certificate is expiring.
      */
     public static function check_certificate_expiration_dates() {
-        require 'activity.php';
+        require_once('activity.php');
+        require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/lib/institution.php');
 
         $certfiles = self::get_cert_files();
 
         foreach ($certfiles as $certfile) {
             $daysleft = self::get_certificate_days_left($certfile);
-            $donotify = in_array($daysleft, array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
+            $donotify = in_array($daysleft,
+                    array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
 
             // Notify only if there's certain amount of days left before the
             // certification expires.
@@ -1335,7 +1337,8 @@ SQL;
                 continue;
             }
 
-            $institution = basename($certfile, '.pem');
+            $institutionid = basename($certfile, '.pem');
+            $institution = new Institution($institutionid);
 
             // Not a good habit to query in a loop, but this is done in a cron
             // job.
@@ -1351,7 +1354,7 @@ SQL;
                         'certificateisexpiring', 'interaction.obf');
                 $message = get_string_from_language($lang,
                         'certificateisexpiringmessage', 'interaction.obf',
-                        $daysleft);
+                        $institution->displayname, $daysleft);
                 $notification = array('users' => array($userid), 'subject' => $subject,
                     'message' => $message);
 

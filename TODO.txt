@@ -1,6 +1,10 @@
 TODO:
 -----
 
+- KESKEN: Testi Testaajalle tuli ilmoitus ainoastaan yhden instituution
+  sertifikaatin vanhentumisesta, vaikka olisi pitänyt tulla molemmista. Testaa,
+  miksi näin.
+
 - Liian monta SQL-queryä check_certificate_expiration_dates-funktiossa
   (sisäkkäiset loopit).
 - Ilmoitus instituution supervisorille (tai adminille jos Mahara), kun

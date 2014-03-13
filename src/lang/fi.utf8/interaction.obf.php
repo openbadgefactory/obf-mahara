@@ -57,9 +57,9 @@ $string['certdirectorynotwritable'] = 'Sertifikaatin tallennus epäonnistui.'
         . ' Järjestelmän ylläpitäjän tulee tarkistaa, että hakemisto sertifikaateille'
         . ' on luotu ja että palvelinprosessilla on siihen kirjoitusoikeudet.';
 $string['certificateisexpiring'] = 'Open Badge Factoryn sertifikaatti on vanhentumassa.';
-$string['certificateisexpiringmessage'] = 'Open Badge Factoryn sertifikaatti '
-        . 'vanhenee %s päivän kuluttua. Uusiaksesi sertifikaatin kirjaudu Open '
-        . 'Badge Factoryyn organisaatiosi ylläpitotunnuksella, luo ja kopioi '
+$string['certificateisexpiringmessage'] = 'Instituutiosi %s sertifikaatti '
+        . 'Open Badge Factoryyn vanhenee %s päivän kuluttua. Uusiaksesi sertifikaatin '
+        . 'kirjaudu Open Badge Factoryyn organisaatiosi ylläpitotunnuksella, luo ja kopioi '
         . 'valtuutusavain ja liitä se tekstikenttään instituutiosi asetussivulla. '
         . 'Tarkemmat ohjeet näet OBF-lisäosan manuaalista.';
 $string['confirmdeauthentication'] = 'Oletko varma, että haluat katkaista valtuutuksen?';
