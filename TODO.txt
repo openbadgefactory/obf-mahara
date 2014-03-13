@@ -1,14 +1,8 @@
 TODO:
 -----
 
-- KESKEN: Testi Testaajalle tuli ilmoitus ainoastaan yhden instituution
-  sertifikaatin vanhentumisesta, vaikka olisi pitänyt tulla molemmista. Testaa,
-  miksi näin.
-
 - Liian monta SQL-queryä check_certificate_expiration_dates-funktiossa
   (sisäkkäiset loopit).
-- Ilmoitus instituution supervisorille (tai adminille jos Mahara), kun
-  sertifikaatti on erääntymässä.
 - Admin/supervisor voi valita, mitkä kategoriat ovat myönnettävissä.
 - Valtuutuksessa paremmat virheilmoitukset, mikä meni pieleen.
 - Tarviiko tehdä obf-luokkaan postinst, jossa tauluille tehdään CASCADE-säännöt
@@ -47,6 +41,11 @@ HACKS:
 DONE:
 -----
 
+- Ilmoitus instituution supervisorille (tai adminille jos Mahara), kun
+  sertifikaatti on erääntymässä.
+- KESKEN: Testi Testaajalle tuli ilmoitus ainoastaan yhden instituution
+  sertifikaatin vanhentumisesta, vaikka olisi pitänyt tulla molemmista. Testaa,
+  miksi näin.
 - Kyvyt-puolella backpack-settings settings-valikkoon?
 - (Ainakin) ryhmäsivuilla css-tiedosto lisätään kahdesti.
 - Verifier-url kovakoodattu verify_backpack_assertion-funktiossa.

@@ -1330,7 +1330,7 @@ SQL;
             $daysleft = self::get_certificate_days_left($certfile);
             $donotify = in_array($daysleft,
                     array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
-
+            
             // Notify only if there's certain amount of days left before the
             // certification expires.
             if ($donotify === false) {
@@ -1338,12 +1338,18 @@ SQL;
             }
 
             $institutionid = basename($certfile, '.pem');
-            $institution = new Institution($institutionid);
+            
+            try {
+                $institution = new Institution($institutionid);
+            } catch (ParamOutOfRangeException $exc) {
+                // Institution does not exist
+                continue;
+            }
 
             // Not a good habit to query in a loop, but this is done in a cron
             // job.
             $recipients = static::get_institution_admins($institution);
-
+            
             // We need to send each notification separately, because users can
             // have different language settings.
             foreach ($recipients as $userid) {
