@@ -9,24 +9,26 @@
 
         <ul id="badges">
             {foreach from=$badges item=badge}
-                <li class="openbadge" title="{$badge->name}" data-id="{$badge->id}" data-expires="{$badge->expires}" data-groups="{$badge->categoryjson}" data-categories="{$badge->categoryjson}">
-                    <div class="badge-wrapper">
-                        <div class="name">
-                            {if $group neq null}
-                                <a href="{$WWWROOT}interaction/obf/issue.php?institution={$badge->institution}&badgeid={$badge->id}&group={$group}">
-                                {else}
-                                    <a href="{$WWWROOT}interaction/obf/badge.php?institution={$badge->institution}&badgeid={$badge->id}">
-                                    {/if}
+                {if $badge->hide neq true}
+                    <li class="openbadge" title="{$badge->name}" data-id="{$badge->id}" data-categories="{$badge->categoryjson}">
+                        <div class="badge-wrapper">
+                            <div class="name">
+                                {if $group neq null}
+                                    <a href="{$WWWROOT}interaction/obf/issue.php?institution={$badge->institution}&badgeid={$badge->id}&group={$group}">
+                                    {else}
+                                        <a href="{$WWWROOT}interaction/obf/badge.php?institution={$badge->institution}&badgeid={$badge->id}">
+                                        {/if}
 
-                                    <img src="{$badge->image}" alt="{$badge->name}" />
-                                    <p>{$badge->name}</p>
-                                </a>
+                                        <img src="{$badge->image}" alt="{$badge->name}" />
+                                        <p>{$badge->name}</p>
+                                    </a>
+                            </div>
+                            <div class="description">
+                                <p>{$badge->description}</p>
+                            </div>
                         </div>
-                        <div class="description">
-                            <p>{$badge->description}</p>
-                        </div>
-                    </div>
-                </li>
+                    </li>
+                {/if}
             {/foreach}
         </ul>
     {/if}

@@ -141,6 +141,8 @@ function institutionissuers_submit(Pieform $form, $values) {
                     'interaction.obf'));
         }
 
+        PluginInteractionObf::save_institution_categories($institution,
+                $values['categories']);
         PluginInteractionObf::save_institution_issuers($institution,
                 $values['users']);
         $SESSION->add_ok_msg(get_string('institutionissuersupdated',

@@ -47,10 +47,13 @@ class PluginInteractionObf extends ObfBase {
         $events = array();
 
         foreach ($institutions as $institution) {
-            $events = array_merge($events,
-                    self::get_events($institution,
+            $institutionevents = self::get_events($institution,
                             self::get_api_consumer_id($groupid), $badgeid,
-                            $offset, $limit));
+                            $offset, $limit);
+            
+            if ($institutionevents !== false) {
+                $events = array_merge($events, $institutionevents);
+            }
         }
 
         return $events;
