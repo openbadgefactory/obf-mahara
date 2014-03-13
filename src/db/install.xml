@@ -38,5 +38,15 @@
             </KEYS>
         </TABLE>
         
+        <TABLE NAME="interaction_obf_institution_category">
+            <FIELDS>
+                <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="category" TYPE="char" LENGTH="255" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="instcatpk" TYPE="primary" FIELDS="institution,category"/>
+            </KEYS>
+        </TABLE>
+        
     </TABLES>
 </XMLDB>

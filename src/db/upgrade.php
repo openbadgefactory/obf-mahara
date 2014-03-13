@@ -85,5 +85,24 @@ function xmldb_interaction_obf_upgrade($oldversion = 0) {
                 . 'REFERENCES {usr} (id) ON DELETE CASCADE');
     }
 
+    // Create badge category table
+    if ($oldversion < 2014031300) {
+        $table = new XMLDBTable('interaction_obf_institution_category');
+
+        $table->addFieldInfo('institution', XMLDB_TYPE_CHAR, '255', null,
+                XMLDB_NOTNULL);
+        $table->addFieldInfo('category', XMLDB_TYPE_CHAR, '255', null,
+                XMLDB_NOTNULL);
+
+        if (!create_table($table)) {
+            throw new SQLException('Table "' . $table->name . '" could not be created, check log for errors.');
+        }
+        
+        execute_sql(
+                'ALTER TABLE {interaction_obf_institution_category} '
+                . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                . 'REFERENCES {institution} (name) ON DELETE CASCADE');
+    }
+
     return true;
 }

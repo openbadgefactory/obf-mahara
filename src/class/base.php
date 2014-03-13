@@ -55,6 +55,11 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
      */
     protected static $badgecache = array();
 
+    /**
+     * Returns the timed events of this plugin.
+     * 
+     * @return stdClass[] The cron objects.
+     */
     public static function get_cron() {
         $checkcertage = new stdClass();
         $checkcertage->callfunction = 'check_certificate_expiration_dates';
@@ -223,21 +228,40 @@ HTML;
      */
     public static function get_badgelist($institutions, $group = null) {
         $institutions = is_array($institutions) ? $institutions : array($institutions);
-        $categories = array();
+        $categoriestodisplay = array();
         $badges = self::get_badges($institutions);
         $sm = smarty_core();
+        $allowedcategories = array();
 
         if ($badges !== false) {
             foreach ($institutions as $institution) {
                 $clientid = self::get_client_id($institution);
-                $categories = array_merge(self::get_categories($institution,
-                                $clientid), $categories);
+                $institutioncategories = self::get_categories($institution,
+                                $clientid);
+                
+                // The institution isn't authenticated yet, no need to continue.
+                if (is_null($institutioncategories)) {
+                    continue;
+                }
+                
+                $allowedinstitutioncategories = self::get_allowed_institution_categories($institution);
+                $allowedcategories = array_merge($allowedcategories,
+                        $allowedinstitutioncategories);
+
+                // We'll show only allowed badge categories.
+                if (count($allowedinstitutioncategories) > 0) {
+                    $institutioncategories = array_intersect($allowedinstitutioncategories,
+                            $institutioncategories);
+                }
+
+                $categoriestodisplay = array_merge($institutioncategories,
+                        $categoriestodisplay);
             }
         }
 
         $sm->assign('institution', $institutions);
         $sm->assign('badges', $badges);
-        $sm->assign('categories', $categories);
+        $sm->assign('categories', array_unique($categoriestodisplay));
         $sm->assign('group', $group);
 
         return $sm->fetch('interaction:obf:badgelist.tpl');
@@ -258,6 +282,8 @@ HTML;
         $curlopts = self::get_curl_opts($institution);
         $clientid = self::get_client_id($institution);
         $badges = false;
+        $allowedcategories = self::get_allowed_institution_categories($institution);
+        $hascategorylimit = count($allowedcategories) > 0;
 
         if (!empty($clientid)) {
             $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '?draft=0';
@@ -266,7 +292,14 @@ HTML;
             if ($ret->info['http_code'] === 200) {
                 $badges = self::stream_to_json($ret->data);
 
-                foreach ($badges as &$badge) {
+                foreach ($badges as $index => &$badge) {
+                    $commoncategories = array_intersect($badge->category,
+                            $allowedcategories);
+                    $badgehasallowedcategory = count($commoncategories) > 0;
+
+                    // If the badge doesn't have an allowed category, do not
+                    // display it.
+                    $badge->hide = $hascategorylimit && !$badgehasallowedcategory;
                     $badge->categoryjson = json_encode($badge->category);
                     $badge->institution = $institution;
                 }
@@ -297,8 +330,11 @@ HTML;
         $badges = array();
 
         foreach ($institutions as $institution) {
-            $badges = array_merge($badges,
-                    self::get_institution_badges($institution));
+            $institutionbadges = self::get_institution_badges($institution);
+
+            if (is_array($institutionbadges)) {
+                $badges = array_merge($badges, $institutionbadges);
+            }
         }
 
         return $badges;
@@ -318,7 +354,7 @@ HTML;
 
         $ret = mahara_http_request($curlopts);
         $categories = json_decode($ret->data);
-
+        
         return $categories;
     }
 
@@ -592,8 +628,8 @@ HTML;
 
         $resp = mahara_http_request($curlopts);
         $data = json_decode($resp->data);
-
-        return $data->result_count;
+        
+        return (is_null($data) ? 0 : $data->result_count);
     }
 
     /**
@@ -617,7 +653,7 @@ HTML;
             $eventcount += self::get_institution_event_count($inst, $groupid,
                             $badgeid);
         }
-
+        
         return $eventcount;
     }
 
@@ -936,13 +972,27 @@ SQL;
             'filter' => false,
             'searchscript' => 'admin/users/userinstitutionsearch.json.php',
             'defaultvalue' => $issuers,
+            'description' => get_string('institutionissuershelp',
+                    'interaction.obf'),
             'searchparams' => array('member' => 1, 'limit' => 100, 'query' => '',
                 'institution' => $institution)
         );
 
+        $categories = self::get_categories($institution);
         $userlistform = array(
             'name' => 'institutionissuers',
             'elements' => array(
+                'categories' => array(
+                    'type' => 'select',
+                    'size' => 5,
+                    'multiple' => true,
+                    'options' => array_combine($categories, $categories),
+                    'description' => get_string('selectissuancecategorieshelp',
+                            'interaction.obf'),
+                    'title' => get_string('selectissuancecategories',
+                            'interaction.obf'),
+                    'defaultvalue' => self::get_allowed_institution_categories($institution)
+                ),
                 'users' => $userlistelement,
                 'submit' => array(
                     'type' => 'submit',
@@ -1227,6 +1277,43 @@ SQL;
     }
 
     /**
+     * Saves the institution's allowed badge categories to database.
+     * 
+     * @param string $institution The institution id.
+     * @param string[] $categories The names of the categories.
+     * @return boolean Returns... true :)
+     */
+    public static function save_institution_categories($institution,
+                                                       array $categories) {
+        db_begin();
+        delete_records('interaction_obf_institution_category', 'institution',
+                $institution);
+
+        foreach ($categories as $category) {
+            insert_record('interaction_obf_institution_category',
+                    (object) array(
+                        'institution' => $institution,
+                        'category' => $category
+            ));
+        }
+
+        db_commit();
+
+        return true;
+    }
+
+    /**
+     * Returns the allowed badge categories of the institution.
+     * 
+     * @param string $institution The institution id.
+     * @return string[] The badge categories.
+     */
+    public static function get_allowed_institution_categories($institution) {
+        return get_column('interaction_obf_institution_category', 'category',
+                'institution', $institution);
+    }
+
+    /**
      * Verifies the assertion returned by Persona's authentication callback.
      * 
      * @param string $assertion The assertion from Persona.
@@ -1330,7 +1417,7 @@ SQL;
             $daysleft = self::get_certificate_days_left($certfile);
             $donotify = in_array($daysleft,
                     array(30, 25, 20, 15, 10, 5, 4, 3, 2, 1));
-            
+
             // Notify only if there's certain amount of days left before the
             // certification expires.
             if ($donotify === false) {
@@ -1338,7 +1425,7 @@ SQL;
             }
 
             $institutionid = basename($certfile, '.pem');
-            
+
             try {
                 $institution = new Institution($institutionid);
             } catch (ParamOutOfRangeException $exc) {
@@ -1349,7 +1436,7 @@ SQL;
             // Not a good habit to query in a loop, but this is done in a cron
             // job.
             $recipients = static::get_institution_admins($institution);
-            
+
             // We need to send each notification separately, because users can
             // have different language settings.
             foreach ($recipients as $userid) {

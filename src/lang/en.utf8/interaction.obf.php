@@ -81,6 +81,8 @@ $string['grouprecipients'] = 'Recipients';
 $string['history'] = 'Issuance history';
 $string['institutionissuermembers'] = 'These members can issue badges:';
 $string['institutionissuers'] = 'Issuance privileges';
+$string['institutionissuershelp'] = 'Select users who can issue badges in the '
+        . 'groups they are members of.';
 $string['institutionissuersupdated'] = 'Issuance privileges updated.';
 $string['institutionmembers'] = 'Members of the institution';
 $string['institutionselectordescription'] = '';
@@ -95,13 +97,18 @@ $string['notadminforinstitution'] = 'Only the institution admin can perform'
         . ' administration tasks for this plugin.';
 $string['numberofrecipients'] = '%s recipients';
 $string['openbadgefactory']   = 'Open Badge Factory';
-$string['privileges'] = 'Issuance privileges';
+$string['privileges'] = 'Issuance settings';
 $string['reauthenticate'] = 'Re-authenticate anyway';
 $string['recipients'] = 'Recipients';
 $string['requesttoken'] = 'Request token';
 $string['save'] = 'Save';
 $string['savebackpack'] = 'Connect to Mozilla Backpack';
 $string['saveemail'] = 'Save message';
+$string['selectissuancecategories'] = 'Availabe categories';
+$string['selectissuancecategorieshelp'] = 'Select the badge categories of which '
+        . 'badges can be used in issuance events of this institution. If none '
+        . 'of the categories is selected, the badges from every category can be '
+        . 'issued.';
 $string['settings'] = 'Settings';
 $string['showallbadges'] = 'Reset filter';
 $string['tokenerror'] = 'Decrypting the request token failed. Be sure to paste the '

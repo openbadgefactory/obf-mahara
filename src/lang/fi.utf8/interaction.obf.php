@@ -79,6 +79,8 @@ $string['history'] = 'Myöntämishistoria';
 $string['institutionissuermembers'] = 'Instituution jäsenet, joilla on oikeus'
         . ' myöntää osaamismerkkejä';
 $string['institutionissuers'] = 'Anna myöntämisoikeudet';
+$string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myöntää '
+        . 'osaamismerkkejä omissa ryhmissään.';
 $string['institutionissuersupdated'] = 'Myöntämisoikeudet päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
 $string['institutionselectordescription'] = '';
@@ -92,13 +94,17 @@ $string['noevents'] = 'Ei vielä myöntämistapahtumia.';
 $string['notadminforinstitution'] = 'Ainostaan instituution ylläpitäjä voi suorittaa ylläpitotoimia.';
 $string['numberofrecipients'] = '%s vastaanottajaa';
 $string['openbadgefactory']   = 'Open Badge Factory';
-$string['privileges'] = 'Myöntämisoikeudet';
+$string['privileges'] = 'Myöntämisasetukset';
 $string['reauthenticate'] = 'Tee valtuutus uudelleen siitä huolimatta.';
 $string['recipients'] = 'Merkin saajat';
 $string['requesttoken'] = 'Valtuutusavain';
 $string['save'] = 'Tallenna';
 $string['savebackpack'] = 'Yhdistä Mozilla Backpackiin';
 $string['saveemail'] = 'Tallenna viesti';
+$string['selectissuancecategories'] = 'Sallitut kategoriat';
+$string['selectissuancecategorieshelp'] = 'Valitse merkkikategoriat, joiden '
+        . 'osaamismerkkejä instituutiossa voidaan myöntää. Mikäli yhtään '
+        . 'kategoriaa ei ole valittu, merkkejä voidaan myöntää kaikista kategorioista.';
 $string['settings'] = 'Asetukset';
 $string['showallbadges'] = 'Näytä kaikki';
 $string['tokenerror'] = 'Valtuutus epäonnistui. Ole hyvä ja tarkista, että '
