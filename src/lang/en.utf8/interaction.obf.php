@@ -83,7 +83,7 @@ $string['institutionissuermembers'] = 'These members can issue badges:';
 $string['institutionissuers'] = 'Issuance privileges';
 $string['institutionissuershelp'] = 'Select users who can issue badges in the '
         . 'groups they are members of.';
-$string['institutionissuersupdated'] = 'Issuance privileges updated.';
+$string['institutionissuersupdated'] = 'Issuance settings updated.';
 $string['institutionmembers'] = 'Members of the institution';
 $string['institutionselectordescription'] = '';
 $string['issuancedetails'] = 'Issuance details';

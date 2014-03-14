@@ -81,7 +81,7 @@ $string['institutionissuermembers'] = 'Instituution jäsenet, joilla on oikeus'
 $string['institutionissuers'] = 'Anna myöntämisoikeudet';
 $string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myöntää '
         . 'osaamismerkkejä omissa ryhmissään.';
-$string['institutionissuersupdated'] = 'Myöntämisoikeudet päivitetty';
+$string['institutionissuersupdated'] = 'Myöntämisasetukset päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
 $string['institutionselectordescription'] = '';
 $string['issuancedetails'] = 'Myöntämisasetukset';
