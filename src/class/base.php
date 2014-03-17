@@ -70,6 +70,33 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
     }
 
     /**
+     * Postinst-hook, called after install/upgrade.
+     * 
+     * @param type $prevversion
+     */
+    public static function postinst($prevversion) {
+        // Add constraint rules after installation process.
+        if ($prevversion <= 0) {
+            execute_sql(
+                    'ALTER TABLE {interaction_obf_issuer} '
+                    . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                    . 'REFERENCES {institution} (name) ON DELETE CASCADE');
+            execute_sql(
+                    'ALTER TABLE {interaction_obf_issuer} '
+                    . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                    . 'REFERENCES {usr} (id) ON DELETE CASCADE');
+            execute_sql(
+                    'ALTER TABLE {interaction_obf_usr_backpack}'
+                    . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                    . 'REFERENCES {usr} (id) ON DELETE CASCADE');
+            execute_sql(
+                    'ALTER TABLE {interaction_obf_institution_category} '
+                    . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                    . 'REFERENCES {institution} (name) ON DELETE CASCADE');
+        }
+    }
+
+    /**
      * The hook that extends the main navigation. We make some dirty tricks here
      * to get our links to show in the menu.
      */
@@ -238,12 +265,12 @@ HTML;
                 $clientid = self::get_client_id($institution);
                 $institutioncategories = self::get_categories($institution,
                                 $clientid);
-                
+
                 // The institution isn't authenticated yet, no need to continue.
                 if (is_null($institutioncategories)) {
                     continue;
                 }
-                
+
                 $allowedinstitutioncategories = self::get_allowed_institution_categories($institution);
                 $allowedcategories = array_merge($allowedcategories,
                         $allowedinstitutioncategories);
@@ -354,7 +381,7 @@ HTML;
 
         $ret = mahara_http_request($curlopts);
         $categories = json_decode($ret->data);
-        
+
         return $categories;
     }
 
@@ -628,7 +655,7 @@ HTML;
 
         $resp = mahara_http_request($curlopts);
         $data = json_decode($resp->data);
-        
+
         return (is_null($data) ? 0 : $data->result_count);
     }
 
@@ -653,7 +680,7 @@ HTML;
             $eventcount += self::get_institution_event_count($inst, $groupid,
                             $badgeid);
         }
-        
+
         return $eventcount;
     }
 

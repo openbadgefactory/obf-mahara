@@ -11,8 +11,7 @@
                 <FIELD NAME="institution" TYPE="char" LENGTH="255" NOTNULL="true"/>
             </FIELDS>
             <KEYS>
-                <KEY NAME="usr" TYPE="foreign" FIELDS="usr" REFTABLE="usr" REFFIELDS="id"/>
-                <KEY NAME="institution" TYPE="foreign" FIELDS="institution" REFTABLE="institution" REFFIELDS="name"/>
+                <KEY NAME="usrinstpk" TYPE="primary" FIELDS="usr,institution"/>
             </KEYS>
         </TABLE>
     

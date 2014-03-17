@@ -77,6 +77,10 @@ function backpack_disconnect_submit(Pieform $form, $values) {
     redirect($currentpath);
 }
 
+function backpack_submit(Pieform $form, $values) {
+    
+}
+
 function get_backpack_email() {
     global $USER;
 

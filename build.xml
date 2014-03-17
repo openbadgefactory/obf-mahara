@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="OBF-Mahara" default="build" basedir="." description="OBF plugin for Mahara">
     
-    <property name="plugindir" value="/home/olli/Projects/kyvytfi/htdocs/interaction"/>
     <property name="srcdir" value="src"/>
     <property name="testdir" value="tests/phpunit"/>
     <property name="builddir" value="build/src"/>

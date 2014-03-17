@@ -1,12 +1,11 @@
 TODO:
 -----
 
+
+- Älä näytä ryhmissä Badges-linkkiä, jos instituutiota ei ole valtuutettu.
 - Liian monta SQL-queryä check_certificate_expiration_dates-funktiossa
   (sisäkkäiset loopit).
-- Admin/supervisor voi valita, mitkä kategoriat ovat myönnettävissä.
 - Valtuutuksessa paremmat virheilmoitukset, mikä meni pieleen.
-- Tarviiko tehdä obf-luokkaan postinst, jossa tauluille tehdään CASCADE-säännöt
-  ensimmäistä asennusta varten vai meneekö upgrade.php:n mukana?
 - Siirrä pki-hakemisto web-hakemiston ulkopuolelle. Sertifikaatit maharan
   data-hakemistoon?
 - Tarkista, tarvitseeko sähköpostitemplaten olla instituutiokohtainen vai
@@ -41,6 +40,10 @@ HACKS:
 DONE:
 -----
 
+- Tarviiko tehdä obf-luokkaan postinst, jossa tauluille tehdään CASCADE-säännöt
+  ensimmäistä asennusta varten vai meneekö upgrade.php:n mukana?
+- TESTAA PUHDAS ASENNUS, ETTÄ TIETOKANTA TOIMII
+- Admin/supervisor voi valita, mitkä kategoriat ovat myönnettävissä.
 - Ilmoitus instituution supervisorille (tai adminille jos Mahara), kun
   sertifikaatti on erääntymässä.
 - KESKEN: Testi Testaajalle tuli ilmoitus ainoastaan yhden instituution
