@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="/home/olli/Projects/kyvytfi/htdocs/lib/tests/phpunit/bootstrap.php">
-    <php>
-        <var name="TESTDBPREFIX" value="tst_" />
-        <var name="TESTDROPSTALEDB" value="true" />
-    </php>
-</phpunit>
