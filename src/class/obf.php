@@ -65,7 +65,7 @@ class PluginInteractionObf extends ObfBase {
             $items['manageinstitutions/obf'] = array(
                 'path' => 'manageinstitutions/obf',
                 'url' => 'interaction/obf/institution.php',
-                'title' => get_string('openbadgefactory', 'interaction.obf'),
+                'title' => get_string('badges', 'interaction.obf'),
                 'weight' => 10);
         }
     }
