@@ -30,7 +30,7 @@ defined('INTERNAL') || die();
 define('API_URL', '%%API_URL%%');
 define('API_CONSUMER_ID', 'mahara');
 define('EVENTS_PER_PAGE', 15);
-define('TEST_MODE', true);
+define('TEST_MODE', false);
 define('PERSONA_VERIFIER_URL', 'https://verifier.login.persona.org/verify');
 
 require_once(dirname(dirname(__FILE__)) . '/lib.php');
