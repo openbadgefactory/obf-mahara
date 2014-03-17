@@ -1,8 +1,8 @@
-Instructions for OBF Mahara plugin
+OBF Mahara plugin
 ==================================
 
-This project uses Composer to manage dependencies. If you don't have Composer installed, run the
-following command to install it:
+This project uses Composer to manage dependencies. If you don't have Composer
+installed, run the following command to install it:
 
     curl -sS https://getcomposer.org/installer | php
 
