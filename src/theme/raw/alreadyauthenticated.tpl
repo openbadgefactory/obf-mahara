@@ -1,5 +1,5 @@
 <div class="ok">
-    {str tag="alreadyauthenticated" section="interaction.obf"}
+    {str tag="alreadyauthenticated" section="interaction.obf" arg1=$expires|date_format}
 </div>
 
 <script type="text/javascript">

@@ -27,7 +27,7 @@
  */
 defined('INTERNAL') || die();
 
-$string['alreadyauthenticated'] = 'Yhteys Open Badge Factoryyn on jo muodostettu.';
+$string['alreadyauthenticated'] = 'Yhteys Open Badge Factoryyn on jo muodostettu. Sertifikaatin vanhenemispäivä: <strong>%s</strong>.';
 $string['apierror'] = 'Tietojen haku Open Badge Factorysta epäonnistui. Yritä'
         . ' hetken kuluttua uudelleen.';
 $string['authenticate'] = 'Suorita valtuutus';

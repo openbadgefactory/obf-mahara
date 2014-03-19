@@ -27,7 +27,7 @@
  */
 defined('INTERNAL') || die();
 
-$string['alreadyauthenticated'] = 'Connection to Open Badge Factory is up and working.';
+$string['alreadyauthenticated'] = 'Connection to Open Badge Factory is up and working. The client certificate expires in <strong>%s</strong>.';
 $string['apierror'] = 'Fetching data from Open Badge Factory failed. Please try'
         . ' again later.';
 $string['authenticate'] = 'Authenticate';

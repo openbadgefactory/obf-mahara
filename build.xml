@@ -4,7 +4,15 @@
     <property name="srcdir" value="src"/>
     <property name="testdir" value="tests/phpunit"/>
     <property name="builddir" value="build/src"/>
-    <property file="build.properties"/>    
+    <property file="build.properties"/>
+    
+    <!-- Override default build properties with our own. -->
+    <if>
+        <available file="local.properties"/>
+        <then>
+            <property file="local.properties" override="true"/>
+        </then>
+    </if>
     
     <fileset dir="${srcdir}" id="srcfiles">
         <include name="**"/>
@@ -29,6 +37,7 @@
             <filterchain>
                 <replacetokens begintoken="%%" endtoken="%%">
                     <token key="API_URL" value="${api.url}"/>
+                    <token key="TEST_MODE" Value="${test.mode}"/>
                 </replacetokens>
             </filterchain>
         </copy>        

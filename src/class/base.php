@@ -970,8 +970,8 @@ SQL;
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_SSLCERT => self::get_cert_filename($institution),
             CURLOPT_SSLKEY => self::get_pkey_filename($institution),
-            CURLOPT_SSL_VERIFYHOST => !TEST_MODE, // for testing
-            CURLOPT_SSL_VERIFYPEER => !TEST_MODE // for testing
+            CURLOPT_SSL_VERIFYHOST => (TEST_MODE ? false : 2),
+            CURLOPT_SSL_VERIFYPEER => !TEST_MODE 
         );
     }
 
@@ -1256,6 +1256,7 @@ SQL;
             );
 
             $sm = smarty_core();
+            $sm->assign('expires', self::get_certificate_expiration_date(self::get_cert_filename($institution)));
             $content .= $sm->fetch('interaction:obf:alreadyauthenticated.tpl');
         }
 
