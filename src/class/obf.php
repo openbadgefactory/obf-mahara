@@ -27,7 +27,7 @@
  */
 defined('INTERNAL') || die();
 
-require(dirname(__FILE__) . '/base.php');
+require_once(dirname(__FILE__) . '/base.php');
 
 class PluginInteractionObf extends ObfBase {
 
