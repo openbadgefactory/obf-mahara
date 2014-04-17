@@ -84,6 +84,7 @@ $string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myö
 $string['institutionissuersupdated'] = 'Myöntämisasetukset päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
 $string['institutionselectordescription'] = '';
+$string['invalidassertion'] = 'Sähköpostiosoitteen varmistus epäonnistui. Syy: %s';
 $string['issuancedetails'] = 'Myöntämisasetukset';
 $string['issuancefailed'] = 'Merkin myöntäminen epäonnistui. Yritä myöhemmin uudelleen.';
 $string['issuebadge'] = 'Myönnä osaamismerkki';

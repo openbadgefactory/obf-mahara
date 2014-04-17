@@ -31,40 +31,46 @@ var Obf = (function() {
     var userid = -1;
     var options = {};
 
-    var has_group_tabs = function() {
-        return $j('.tabswrap').size() > 0;
-    };
-
-    var has_profile_subnav = function() {
-        return $j('#sub-nav').size() > 0;
-    };
-    
-    var has_supervisor_tabs = function () {
-        return $j('#sub-nav').size() > 0;
-    };
-
     var add_issuance_tab = function() {
+        var subnav = get_page_tabs();
+        
+        if (!subnav) {
+            return;
+        }
+        
         var url = window.config.wwwroot + 'interaction/obf/group.php?id=' + groupid;
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
 
-        $j('ul.in-page-tabs').first().append(listelement);
+        subnav.append(listelement);
     };
 
     var add_backpack_tab = function() {
+        var subnav = get_subnav();
+        
+        if (!subnav) {
+            return;
+        }
+        
         var url = window.config.wwwroot + 'interaction/obf/profile.php?user=' + userid;
         var link = $j('<a></a>').text(options.lang.backpacksettings).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('backpack');
 
-        $j('#sub-nav > ul').append(listelement);
+        subnav.append(listelement);
     };
     
     var add_supervisor_tab = function() {
+        var subnav = get_subnav();
+        
+        if (!subnav) {
+            return;
+        }
+        
         var url = window.config.wwwroot + 'interaction/obf/supervisor.php';
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
         
-        $j('#sub-nav > ul').append(listelement);
+        subnav.append(listelement);
     };
 
     var toggle_category = function(evt) {
@@ -113,23 +119,25 @@ var Obf = (function() {
         $j('td.lrbuttons').append(btn);
     };
 
+    var get_subnav = function () {
+        return ($j('#sub-nav > ul').size() > 0 ? $j('#sub-nav > ul').first() : get_page_tabs());
+    };
+    
+    var get_page_tabs = function () {
+        return ($j('ul.in-page-tabs').size() > 0 ? $j('ul.in-page-tabs').first() : null);
+    };
+
     return {
         init_group: function(gid, opts) {
             options = opts;
             groupid = gid;
-
-            if (has_group_tabs()) {
-                add_issuance_tab();
-            }
+            add_issuance_tab();
         }
 
         , init_profile: function(uid, opts) {
             options = opts;
             userid = uid;
-
-            if (has_profile_subnav()) {
-                add_backpack_tab();
-            }
+            add_backpack_tab();
         }
 
         , init_categories: function() {
@@ -139,10 +147,7 @@ var Obf = (function() {
         
         , init_supervisor: function (opts) {
             options = opts;
-            
-            if (has_supervisor_tabs()) {
-                add_supervisor_tab();
-            }
+            add_supervisor_tab();
         }
 
         , init_issuance_page: function() {            
@@ -168,14 +173,24 @@ var Obf = (function() {
             evt.preventDefault();
 
             navigator.id.get(function(assertion) {
+                $j('#assertion-error').hide();
                 if (assertion !== null) {
                     $j.getJSON(window.config.wwwroot + 'interaction/obf/authenticate.json.php', {
                         assertion: assertion},
                     function(res, status, xhr) {
-                        window.location.reload();
+                        if (res.error === true) {
+                            $j('#assertion-error').text(res.message).show();
+                        }
+                        else {
+                            window.location.reload();
+                        }
                     });
                 }
             });
+        }
+        
+        , select_backpack_tab: function () {
+            get_subnav().children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');
         }
     };
 })();

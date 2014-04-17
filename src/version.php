@@ -26,5 +26,5 @@
  *
  */
 $config = new stdClass();
-$config->version = 2014031700;
-$config->release = '1.0.0';
+$config->version = 2014041700;
+$config->release = '1.0.1';

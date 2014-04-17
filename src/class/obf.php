@@ -88,5 +88,9 @@ class PluginInteractionObf extends ObfBase {
     public static function get_institution_admins(Institution $institution) {
         return $institution->admins();
     }
+    
+    public static function show_group_tab($group) {
+        return true;
+    }
 
 }

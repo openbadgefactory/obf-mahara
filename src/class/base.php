@@ -36,6 +36,8 @@ interface ObfInterface {
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 
     static function get_institution_admins(Institution $institution);
+    
+    static function show_group_tab($group);
 }
 
 abstract class ObfBase extends PluginInteraction implements ObfInterface {
@@ -96,6 +98,23 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         }
     }
 
+    public static function group_menu_items($group) {
+        global $USER;
+        
+        $menu = array();
+        $canissuebadges = self::user_can_issue_badges($USER);
+        
+        if (static::show_group_tab($group) && $canissuebadges) {
+            $menu['badges'] = array(
+                'path' => 'groups/badges',
+                'url' => 'interaction/obf/group.php?id=' . $group->id,
+                'title' => get_string('badges', 'interaction.obf'),
+                'weight' => 100,
+            );
+        }
+        return $menu;
+    }
+    
     /**
      * The hook that extends the main navigation. We make some dirty tricks here
      * to get our links to show in the menu.
@@ -1372,7 +1391,7 @@ SQL;
         }
 
         if ($data->status != 'okay') {
-            throw new Exception(get_string('invalidassertion', 'interaction.obf'));
+            throw new Exception(get_string('invalidassertion', 'interaction.obf', $data->reason));
         }
 
         $email = $data->email;
@@ -1405,7 +1424,7 @@ SQL;
      */
     public static function get_audience() {
         $urlparts = parse_url(get_config('wwwroot'));
-        $port = isset($urlparts['port']) ? $urlparts['port'] : 80;
+        $port = isset($urlparts['port']) ? $urlparts['port'] : (is_https() ? 443 : 80);
         $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
 
         return $url;
