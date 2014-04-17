@@ -401,9 +401,29 @@ HTML;
         $ret = mahara_http_request($curlopts);
         $categories = json_decode($ret->data);
 
+        self::synchronize_local_categories($categories, $institution);
+        
         return $categories;
     }
 
+    /**
+     * Removes categories from local database that don't exist anymore in
+     * Open Badge Factory for the selected institution.
+     * 
+     * @param string[] $categories The categories from OBF.
+     * @param string $institution The institution id.
+     */
+    protected function synchronize_local_categories(array $categories, $institution) {
+        $categorystr = implode(',', array_map('db_quote', $categories));
+        $where = 'institution = ?';
+        
+        if (count($categories) > 0) {
+            $where .= ' AND category NOT IN (' . $categorystr . ')';
+        }
+        
+        delete_records_select('interaction_obf_institution_category', $where, array($institution));
+    }
+    
     /**
      * Returns the data of a single badge from the OBF API.
      * 
