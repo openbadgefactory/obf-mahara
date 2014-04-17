@@ -40,7 +40,7 @@ var Obf = (function() {
         
         // A bit hacky way to test, whether the navigation already contains
         // the element.
-        if (subnav.children('li a:contains(' + options.lang.badges + ')')) {
+        if (subnav.children('li a:contains(' + options.lang.badges + ')').size() > 0) {
             return;
         }
         
@@ -75,7 +75,7 @@ var Obf = (function() {
         var url = window.config.wwwroot + 'interaction/obf/supervisor.php';
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
-        
+
         subnav.append(listelement);
     };
 
@@ -192,7 +192,7 @@ var Obf = (function() {
                             $j('#assertion-error').text(res.message).show();
                         }
                         else {
-                            window.location.reload();
+                        window.location.reload();
                         }
                     });
                 }
