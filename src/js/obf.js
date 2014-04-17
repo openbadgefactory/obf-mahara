@@ -38,6 +38,12 @@ var Obf = (function() {
             return;
         }
         
+        // A bit hacky way to test, whether the navigation already contains
+        // the element.
+        if (subnav.children('li a:contains(' + options.lang.badges + ')')) {
+            return;
+        }
+        
         var url = window.config.wwwroot + 'interaction/obf/group.php?id=' + groupid;
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
@@ -46,7 +52,7 @@ var Obf = (function() {
     };
 
     var add_backpack_tab = function() {
-        var subnav = get_subnav();
+        var subnav = get_page_tabs() || get_subnav();
         
         if (!subnav) {
             return;
@@ -60,8 +66,8 @@ var Obf = (function() {
     };
     
     var add_supervisor_tab = function() {
-        var subnav = get_subnav();
-        
+        var subnav = get_subnav().children('li.supervisor').first().children('ul').first();
+
         if (!subnav) {
             return;
         }
@@ -119,8 +125,12 @@ var Obf = (function() {
         $j('td.lrbuttons').append(btn);
     };
 
-    var get_subnav = function () {
-        return ($j('#sub-nav > ul').size() > 0 ? $j('#sub-nav > ul').first() : get_page_tabs());
+    var get_subnav = function () {        
+        return ($j('#sub-nav > ul').size() > 0
+            ? $j('#sub-nav > ul').first()
+            : ($j('#main-nav #dropdown-nav').size() > 0
+                ? $j('#main-nav #dropdown-nav').first()
+                : get_page_tabs()));
     };
     
     var get_page_tabs = function () {
@@ -190,7 +200,8 @@ var Obf = (function() {
         }
         
         , select_backpack_tab: function () {
-            get_subnav().children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');
+            var nav = get_page_tabs() || get_subnav();
+            nav.children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');
         }
     };
 })();
