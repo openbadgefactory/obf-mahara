@@ -36,7 +36,7 @@ interface ObfInterface {
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 
     static function get_institution_admins(Institution $institution);
-    
+
     static function show_group_tab($group);
 }
 
@@ -81,30 +81,40 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         if ($prevversion <= 0) {
             execute_sql(
                     'ALTER TABLE {interaction_obf_issuer} '
-                    . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                    . 'ADD CONSTRAINT intobf_inst_fk FOREIGN KEY (institution) '
                     . 'REFERENCES {institution} (name) ON DELETE CASCADE');
             execute_sql(
                     'ALTER TABLE {interaction_obf_issuer} '
-                    . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                    . 'ADD CONSTRAINT intobf_usri_fk FOREIGN KEY (usr) '
                     . 'REFERENCES {usr} (id) ON DELETE CASCADE');
             execute_sql(
                     'ALTER TABLE {interaction_obf_usr_backpack}'
-                    . 'ADD CONSTRAINT FOREIGN KEY usrfk (usr) '
+                    . 'ADD CONSTRAINT intobf_usrb_fk FOREIGN KEY (usr) '
                     . 'REFERENCES {usr} (id) ON DELETE CASCADE');
             execute_sql(
                     'ALTER TABLE {interaction_obf_institution_category} '
-                    . 'ADD CONSTRAINT FOREIGN KEY instfk (institution) '
+                    . 'ADD CONSTRAINT intobf_instc_fk FOREIGN KEY (institution) '
                     . 'REFERENCES {institution} (name) ON DELETE CASCADE');
         }
     }
 
     public static function group_menu_items($group) {
         global $USER;
-        
+
+        if (group_user_access($group->id) === false) {
+            return array();
+        }
+
         $menu = array();
         $canissuebadges = self::user_can_issue_badges($USER);
-        
-        if (static::show_group_tab($group) && $canissuebadges) {
+
+        try {
+            $showgrouptab = static::show_group_tab($group);
+        } catch (Exception $ex) {
+            $showgrouptab = false;
+        }
+
+        if ($showgrouptab && $canissuebadges) {
             $menu['badges'] = array(
                 'path' => 'groups/badges',
                 'url' => 'interaction/obf/group.php?id=' . $group->id,
@@ -114,7 +124,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         }
         return $menu;
     }
-    
+
     /**
      * The hook that extends the main navigation. We make some dirty tricks here
      * to get our links to show in the menu.
@@ -136,17 +146,18 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         // So until Mahara allows plugins to extend the navigation more freely,
         // we do it like this.
 
-        if (!isset($HEADDATA['interaction.obf'])) {
+        $menuexists = defined('MENUITEM');
+        if ($menuexists && !isset($HEADDATA['interaction.obf'])) {
             $userid = $USER->id;
             $obfheaddata = '';
-            $menuexists = defined('MENUITEM');
-            $isgrouppage = $menuexists && strpos(MENUITEM, 'groups/') === 0;
-            $isprofilepage = $menuexists && strpos(MENUITEM, 'settings/') === 0;
+            $isgrouppage = strpos(MENUITEM, 'groups/') === 0;
+            $isprofilepage = strpos(MENUITEM, 'settings/') === 0;
             $canissuebadges = self::user_can_issue_badges($USER);
             $groupid = defined('GROUP') ? (int) GROUP : null;
 
             // Add our JS-files to group pages.
-            if ($isgrouppage && !is_null($groupid) && $canissuebadges) {
+            if ($isgrouppage && !is_null($groupid) && $canissuebadges &&
+                    group_user_access($groupid) !== false) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
                         'issuetoall' => get_string('issuetoall',
@@ -402,7 +413,7 @@ HTML;
         $categories = json_decode($ret->data);
 
         self::synchronize_local_categories($categories, $institution);
-        
+
         return $categories;
     }
 
@@ -413,17 +424,19 @@ HTML;
      * @param string[] $categories The categories from OBF.
      * @param string $institution The institution id.
      */
-    protected function synchronize_local_categories(array $categories, $institution) {
+    protected function synchronize_local_categories(array $categories,
+                                                    $institution) {
         $categorystr = implode(',', array_map('db_quote', $categories));
         $where = 'institution = ?';
-        
+
         if (count($categories) > 0) {
             $where .= ' AND category NOT IN (' . $categorystr . ')';
         }
-        
-        delete_records_select('interaction_obf_institution_category', $where, array($institution));
+
+        delete_records_select('interaction_obf_institution_category', $where,
+                array($institution));
     }
-    
+
     /**
      * Returns the data of a single badge from the OBF API.
      * 
@@ -841,8 +854,10 @@ SQL;
                 $records = get_records_sql_assoc($sql,
                         array_merge($uniquerecipients, $uniquerecipients));
 
-                foreach ($records as $record) {
-                    $ignored[] = $record->id;
+                if (is_array($records)) {
+                    foreach ($records as $record) {
+                        $ignored[] = $record->id;
+                    }
                 }
             }
         }
@@ -1010,7 +1025,7 @@ SQL;
             CURLOPT_SSLCERT => self::get_cert_filename($institution),
             CURLOPT_SSLKEY => self::get_pkey_filename($institution),
             CURLOPT_SSL_VERIFYHOST => (TEST_MODE ? false : 2),
-            CURLOPT_SSL_VERIFYPEER => !TEST_MODE 
+            CURLOPT_SSL_VERIFYPEER => !TEST_MODE
         );
     }
 
@@ -1295,7 +1310,8 @@ SQL;
             );
 
             $sm = smarty_core();
-            $sm->assign('expires', self::get_certificate_expiration_date(self::get_cert_filename($institution)));
+            $sm->assign('expires',
+                    self::get_certificate_expiration_date(self::get_cert_filename($institution)));
             $content .= $sm->fetch('interaction:obf:alreadyauthenticated.tpl');
         }
 
@@ -1411,7 +1427,8 @@ SQL;
         }
 
         if ($data->status != 'okay') {
-            throw new Exception(get_string('invalidassertion', 'interaction.obf', $data->reason));
+            throw new Exception(get_string('invalidassertion',
+                    'interaction.obf', $data->reason));
         }
 
         $email = $data->email;
@@ -1444,7 +1461,8 @@ SQL;
      */
     public static function get_audience() {
         $urlparts = parse_url(get_config('wwwroot'));
-        $port = isset($urlparts['port']) ? $urlparts['port'] : (is_https() ? 443 : 80);
+        $port = isset($urlparts['port']) ? $urlparts['port'] : (is_https() ? 443
+                            : 80);
         $url = $urlparts['scheme'] . '://' . $urlparts['host'] . ':' . $port;
 
         return $url;
@@ -1457,7 +1475,9 @@ SQL;
      * @return string The absolute path of the file.
      */
     public static function get_pkey_filename($institution) {
-        return __DIR__ . '/../pki/' . $institution . '.key';
+        $path = get_config('dataroot') . 'interaction/obf/keys/' . $institution . '/';
+        check_dir_exists($path, true, true);
+        return $path . $institution . '.key';
     }
 
     /**
@@ -1467,7 +1487,9 @@ SQL;
      * @return string The absolute path of the file.
      */
     public static function get_cert_filename($institution) {
-        return __DIR__ . '/../pki/' . $institution . '.pem';
+        $path = get_config('dataroot') . 'interaction/obf/keys/' . $institution . '/';
+        check_dir_exists($path, true, true);
+        return $path . $institution . '.pem';
     }
 
     /**

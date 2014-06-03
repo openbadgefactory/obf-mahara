@@ -40,7 +40,7 @@ var Obf = (function() {
         
         // A bit hacky way to test, whether the navigation already contains
         // the element.
-        if (subnav.children('li a:contains(' + options.lang.badges + ')').size() > 0) {
+        if (subnav.find('li a:contains(' + options.lang.badges + ')').size() > 0) {
             return;
         }
         
