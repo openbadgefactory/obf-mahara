@@ -55,9 +55,7 @@ $options = array(
 );
 
 if ($group) {
-    $options['group'] = $group;
-    $options['includeadmins'] = $includeadmins;
-    $data = search_user($query, $limit, $offset, $options);
+    $data = get_group_user_search_results($group, '', 0, 9999, '', null, null, null);
 }
 else {
     $data = search_user($query, $limit, $offset, $options);
