@@ -30,10 +30,7 @@ How to install
 
         mkdir /[maharadir]/interaction/obf
 
-2. Give web server user write privileges to pki-directory:
-
-        chown www-data:www-data /[maharadir]/interaction/obf/pki
-
-3. Navigate to Administration > Extensions and locate the OBF-plugin below
+3. Copy the contents of the build/src -directory to the plugin directory created above.
+2. Navigate to Administration > Extensions and locate the OBF-plugin below
    "Plugin type: interaction".
-4. Click "Install"
+3. Click "Install"
