@@ -61,7 +61,7 @@ class PluginInteractionObf extends ObfBase {
 
     public static function navigation_hook($user, &$items) {
         // Add our page link to institution admin.
-        if ($user->is_institutional_admin()) {
+        if ($user->get('admin') || $user->is_institutional_admin()) {
             $items['manageinstitutions/obf'] = array(
                 'path' => 'manageinstitutions/obf',
                 'url' => 'interaction/obf/institution.php',
