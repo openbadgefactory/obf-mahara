@@ -7,8 +7,8 @@
 
 <h1>{$badge->name}</h1>
 
-{include file="badgedetails.tpl" badge=$badge}
-{include file="tabs.tpl" tabs=$subpages selected=$page page="badge.php?institution=$institution&badgeid=$badge->id"}
+{include file="interaction:obf:badgedetails.tpl" badge=$badge}
+{include file="interaction:obf:tabs.tpl" tabs=$subpages selected=$page page="badge.php?institution=$institution&badgeid=$badge->id"}
 
 <div class="subpage">
     {$content|safe}

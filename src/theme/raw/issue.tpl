@@ -34,7 +34,7 @@
                     {$form|safe}
                 </div>
                 <div id="badge-group-history" style="display: none" data-tab-content="history">
-                    {include file="events.tpl" events=$events badge=$badge}
+                    {include file="interaction:obf:events.tpl" events=$events badge=$badge}
                 </div>
             </div>
         </div>

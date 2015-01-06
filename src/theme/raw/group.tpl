@@ -1,5 +1,5 @@
 {include file="header.tpl"}
-{include file="tabs.tpl" tabs=$subpages selected=$page page="group.php?id=$group"}
+{include file="interaction:obf:tabs.tpl" tabs=$subpages selected=$page page="group.php?id=$group"}
 
 <div class="subpage">
     {if $content eq false}

@@ -5,7 +5,7 @@
         <p>{str tag="nobadges" section="interaction.obf"}</p>
     {else}
 
-        {include file="categories.tpl" categories=$categories}
+        {include file="interaction:obf:categories.tpl" categories=$categories}
 
         <ul id="badges">
             {foreach from=$badges item=badge}
