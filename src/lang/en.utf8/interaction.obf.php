@@ -105,7 +105,7 @@ $string['requesttoken'] = 'Request token';
 $string['save'] = 'Save';
 $string['savebackpack'] = 'Connect to Mozilla Backpack';
 $string['saveemail'] = 'Save message';
-$string['selectissuancecategories'] = 'Availabe categories';
+$string['selectissuancecategories'] = 'Available categories';
 $string['selectissuancecategorieshelp'] = 'Select the badge categories of which '
         . 'badges can be used in issuance events of this institution. If none '
         . 'of the categories is selected, the badges from every category can be '
@@ -116,6 +116,6 @@ $string['tokenerror'] = 'Decrypting the request token failed. Be sure to paste t
         . 'certificate signing request token fully.';
 $string['youhaveissuedbadgesmessage'] = 'You have issued the badge "%s"'
         . ' to following group members:
-            
+
 %s';
 $string['youhaveissuedbadgessubject'] = 'You have issued a badge';
