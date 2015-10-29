@@ -105,7 +105,8 @@ $string['saveemail'] = 'Tallenna viesti';
 $string['selectissuancecategories'] = 'Sallitut kategoriat';
 $string['selectissuancecategorieshelp'] = 'Valitse merkkikategoriat, joiden '
         . 'osaamismerkkejä instituutiossa voidaan myöntää. Mikäli yhtään '
-        . 'kategoriaa ei ole valittu, merkkejä voidaan myöntää kaikista kategorioista.';
+        . 'kategoriaa ei ole valittu, merkkejä voidaan myöntää kaikista kategorioista. '
+        . 'Voit poistaa valinnan klikkaamalla kategorian nimeä Ctrl-painike pohjassa.';
 $string['settings'] = 'Asetukset';
 $string['showallbadges'] = 'Näytä kaikki';
 $string['tokenerror'] = 'Valtuutus epäonnistui. Ole hyvä ja tarkista, että '

@@ -109,7 +109,7 @@ $string['selectissuancecategories'] = 'Available categories';
 $string['selectissuancecategorieshelp'] = 'Select the badge categories of which '
         . 'badges can be used in issuance events of this institution. If none '
         . 'of the categories is selected, the badges from every category can be '
-        . 'issued.';
+        . 'issued. Click the name of the category while holding the CTRL button to deselect it.';
 $string['settings'] = 'Settings';
 $string['showallbadges'] = 'Reset filter';
 $string['tokenerror'] = 'Decrypting the request token failed. Be sure to paste the '

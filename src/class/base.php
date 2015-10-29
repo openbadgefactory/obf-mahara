@@ -1072,7 +1072,8 @@ SQL;
                             'interaction.obf'),
                     'title' => get_string('selectissuancecategories',
                             'interaction.obf'),
-                    'defaultvalue' => self::get_allowed_institution_categories($institution)
+                    'defaultvalue' => self::get_allowed_institution_categories($institution),
+                    'collapseifoneoption' => false,
                 ),
                 'users' => $userlistelement,
                 'submit' => array(
