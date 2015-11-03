@@ -45,21 +45,21 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
     /**
      * Cache for the badges, so that we don't need request the whole batch
      * every time. The array is formatted as follows:
-     * 
+     *
      * [
      *      'institution1' => [ badgeobj1, badgeobj2, ... badgeobjN ],
      *      'institution2' => [ badgeobjX, badgeobjY, ... badgeobjZ ]
      * ]
-     * 
+     *
      * Where badgeobj is an object with badge data (from OBF API).
-     * 
+     *
      * @var stdClass[]
      */
     protected static $badgecache = array();
 
     /**
      * Returns the timed events of this plugin.
-     * 
+     *
      * @return stdClass[] The cron objects.
      */
     public static function get_cron() {
@@ -73,7 +73,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
 
     /**
      * Postinst-hook, called after install/upgrade.
-     * 
+     *
      * @param type $prevversion
      */
     public static function postinst($prevversion) {
@@ -200,7 +200,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
     /**
      * Returns the HTML-markup for the document head. Markup includes our
      * JavaScript file and stylesheet and a call to our selected init-function.
-     * 
+     *
      * @param Theme $theme The current theme object.
      * @param string $initfunc The name of the JS-function (in Obf-namespace)
      *      to be called after the document is ready.
@@ -232,7 +232,7 @@ HTML;
 
     /**
      * Whether the user can issue badges or not.
-     * 
+     *
      * @param stdClass $user The user object.
      * @return boolean True if the user can issue badges and false otherwise.
      */
@@ -242,7 +242,7 @@ HTML;
 
     /**
      * Returns the OBF client id from the plugin config.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string|null Returns the client id or null if not found.
      */
@@ -256,7 +256,7 @@ HTML;
 
     /**
      * Returns the name of the configuration key used to store the client id.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string The name of the configuration key.
      */
@@ -266,7 +266,7 @@ HTML;
 
     /**
      * Converts the stream returned by some OBF API calls into valid JSON.
-     * 
+     *
      * @param string $str The JSON-stream.
      * @return array The decoded data.
      */
@@ -277,7 +277,7 @@ HTML;
 
     /**
      * Returns the HTML for list of badges.
-     * 
+     *
      * @param string|string[] $institutions The id of the institution or an
      *      array of institution ids.
      * @param int $group The group id.
@@ -326,7 +326,7 @@ HTML;
 
     /**
      * Returns the institution badges from the API (or cache if exists).
-     * 
+     *
      * @param string $institution The institution id.
      * @return stdClass[] An array of badge objects.
      */
@@ -374,7 +374,7 @@ HTML;
     /**
      * Returns the badges of a single institution or multiple institutions from
      * the API (or cache if exists).
-     * 
+     *
      * @param string|string[] $institution The institution id or an array of
      *      institution ids.
      * @return stdClass[] An array of badge objects.
@@ -399,7 +399,7 @@ HTML;
 
     /**
      * Returns the badge categories from the OBF API.
-     * 
+     *
      * @param string $institution The institution id.
      * @param string $clientid The OBF API client id.
      * @return string[] The categories.
@@ -420,7 +420,7 @@ HTML;
     /**
      * Removes categories from local database that don't exist anymore in
      * Open Badge Factory for the selected institution.
-     * 
+     *
      * @param string[] $categories The categories from OBF.
      * @param string $institution The institution id.
      */
@@ -439,7 +439,7 @@ HTML;
 
     /**
      * Returns the data of a single badge from the OBF API.
-     * 
+     *
      * @param string $institution The institution id.
      * @param string $badgeid The badge id.
      * @return stdClass|false Returns the badge object or false in case of an error.
@@ -466,7 +466,7 @@ HTML;
 
     /**
      * Returns the institution events from the OBF API.
-     * 
+     *
      * @param string $institution The id of the institution.
      * @param string $apiconsumerid The api consumer id.
      * @param string $badgeid The badge id.
@@ -506,7 +506,7 @@ HTML;
 
     /**
      * Returns the badge image url (or data url).
-     * 
+     *
      * @param string $badgeid The id of the badge.
      * @param string $institution The institution id.
      * @return string The image url or null if not found.
@@ -525,7 +525,7 @@ HTML;
 
     /**
      * Saves the badge email template to database.
-     * 
+     *
      * @param string $badgeid The badge id.
      * @param string $subject The email subject.
      * @param string $body The email body.
@@ -549,7 +549,7 @@ HTML;
     /**
      * Returns the badge email template. Tries to get the local version first
      * from the database. If not found, gets the template from the OBF API.
-     * 
+     *
      * @param string $badgeid The badge id.
      * @param string $institution The institution id.
      * @return array Returns an associative array with 'body', 'subject' and
@@ -589,7 +589,7 @@ HTML;
 
     /**
      * Returns the names of the selected users.
-     * 
+     *
      * @param int[] $userids The user ids.
      * @return string[] The display names of the users.
      */
@@ -609,7 +609,7 @@ HTML;
     /**
      * Returns the api consumer id. The id if different depending of the
      * selected context (group or institution).
-     * 
+     *
      * @param int $groupid The id of the group. If not set, then the consumer
      *      id of the institution is returned.
      * @return string The api consumer id.
@@ -620,7 +620,7 @@ HTML;
 
     /**
      * Issues a badge through the OBF API.
-     * 
+     *
      * @param stdClass $user The user who is issuing the badge.
      * @param string $institution The institution that owns the badge.
      * @param int $groupid The id of the group in which context the badge is issued.
@@ -679,7 +679,7 @@ HTML;
 
     /**
      * Returns the number of events of an institution or a group.
-     * 
+     *
      * @param string $institution The institution id.
      * @param int $groupid The id of the group. If set, then the event count of
      *      the selected group is returned.
@@ -714,7 +714,7 @@ HTML;
     /**
      * Returns the number of events of an institution, multiple institutions
      * or a group.
-     * 
+     *
      * @param string|array $institution The institution id or an array of
      *      institution ids.
      * @param int $groupid The id of the group. If set, then the event count of
@@ -738,7 +738,7 @@ HTML;
 
     /**
      * Returns the HTML for a list of events.
-     * 
+     *
      * @param string[] $institutions The institutions, whose events we're displaying.
      * @param int $groupId The id of the selected group.
      * @param string $currentpath The current relative path.
@@ -765,7 +765,7 @@ HTML;
 
     /**
      * Sends a notification to the user who has issued a badge.
-     * 
+     *
      * @param stdClass $user The user object.
      * @param string $institution The current institution id.
      * @param int[] $userids The ids of the recipients.
@@ -789,7 +789,7 @@ HTML;
 
     /**
      * Returns the name of the badge.
-     * 
+     *
      * @param string $institution The institution id.
      * @param string $badgeid The id of the badge.
      * @return string|false The name of the badge or false if not found.
@@ -810,7 +810,7 @@ HTML;
      * Returns the ids of the users than can be ignored when creating a list
      * of possible badge recipients. The ignored users have already earned
      * the selected badge and the badge hasn't been expired yet.
-     * 
+     *
      * @param int $groupid The id of the current group.
      * @param string $badgeid The id of the selected badge.
      * @return int[] The ids of the ignored users.
@@ -868,8 +868,8 @@ SQL;
     /**
      * Returns the backpack emails matching the user ids in $userids. If the
      * backpack email for a single user doesn't exist, the primary email
-     * address is returned instead. 
-     * 
+     * address is returned instead.
+     *
      * @param int[] $userids The userids.
      * @return string[] The email addresses.
      */
@@ -901,7 +901,7 @@ SQL;
 
     /**
      * Authenticates the institution via OBF API.
-     * 
+     *
      * @param string $institution The institution id.
      * @param string $token The certificate signing request token from OBF.
      * @return boolean Returns true if authentication was successful.
@@ -989,7 +989,7 @@ SQL;
 
     /**
      * Removes authentication data from the system.
-     * 
+     *
      * @param string $institution The institution id.
      */
     public static function deauthenticate($institution) {
@@ -1004,7 +1004,7 @@ SQL;
 
     /**
      * Removes a configuration value from the database related to this plugin.
-     * 
+     *
      * @param string $configname The name of the configuration value.
      */
     public static function remove_config_plugin($configname) {
@@ -1014,7 +1014,7 @@ SQL;
 
     /**
      * Get the Curl-options common to all requests.
-     * 
+     *
      * @param string $institution The institution id.
      * @return array The curl options as an associative array.
      */
@@ -1032,7 +1032,7 @@ SQL;
     /**
      * Creates and returns the HTML form used to change the issuing privileges
      * inside an institution.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string The HTML form
      */
@@ -1089,7 +1089,7 @@ SQL;
 
     /**
      * Returns the form used to issue a badge.
-     * 
+     *
      * @param stdClass $badge The selected badge.
      * @param string $institution The institution id.
      * @return string The HTML form.
@@ -1164,7 +1164,7 @@ SQL;
     /**
      * Returns the email form elements (subject, body, footer) to be used
      * in any Pieform.
-     * 
+     *
      * @param string $badgeid The id of the badge.
      * @param string $institution The institution id.
      * @return array The form elements.
@@ -1213,7 +1213,7 @@ SQL;
     /**
      * Checks whether the institution is currently authenticated with the
      * OBF API.
-     * 
+     *
      * @param string $institution The institution id.
      * @return boolean True if already authenticated, false otherwise.
      * @throws RemoteServerException If something goes wrong while communicating
@@ -1243,7 +1243,7 @@ SQL;
 
     /**
      * Returns the HTML used to show an error message.
-     * 
+     *
      * @param string $message The error message to show.
      * @return string The HTML markup.
      */
@@ -1255,7 +1255,7 @@ SQL;
 
     /**
      * Creates and returns the HTML form used to authenticate the institution.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string The HTML form.
      */
@@ -1322,7 +1322,7 @@ SQL;
 
     /**
      * Updates the issuer privileges to database.
-     * 
+     *
      * @param string $institution The institution id.
      * @param int[] $users The userids with the issuer privilege.
      * @return boolean
@@ -1361,7 +1361,7 @@ SQL;
 
     /**
      * Saves the institution's allowed badge categories to database.
-     * 
+     *
      * @param string $institution The institution id.
      * @param string[] $categories The names of the categories.
      * @return boolean Returns... true :)
@@ -1387,7 +1387,7 @@ SQL;
 
     /**
      * Returns the allowed badge categories of the institution.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string[] The badge categories.
      */
@@ -1398,7 +1398,7 @@ SQL;
 
     /**
      * Verifies the assertion returned by Persona's authentication callback.
-     * 
+     *
      * @param string $assertion The assertion from Persona.
      * @return string Returns the email address matching the assertion.
      * @throws Exception If the verification fails for some reason.
@@ -1438,7 +1438,7 @@ SQL;
 
     /**
      * Saves the user's backpack email to database.
-     * 
+     *
      * @param stdClass $user The user object.
      * @param type $email
      */
@@ -1456,7 +1456,7 @@ SQL;
 
     /**
      * Returns the audience (site URL) used in Persona verification.
-     * 
+     *
      * @return string The site URL.
      */
     public static function get_audience() {
@@ -1470,7 +1470,7 @@ SQL;
 
     /**
      * Returns the absolute path of the institution's public key file.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string The absolute path of the file.
      */
@@ -1482,7 +1482,7 @@ SQL;
 
     /**
      * Returns the absolute path of the institution's certificate file.
-     * 
+     *
      * @param string $institution The institution id.
      * @return string The absolute path of the file.
      */
@@ -1547,7 +1547,7 @@ SQL;
 
     /**
      * Get the number of days left before the certificate expires.
-     * 
+     *
      * @param string $certfile The absolute path of the certificate file.
      * @return int The number of days left before expiration.
      */
@@ -1562,7 +1562,7 @@ SQL;
 
     /**
      * Returns all certification files in the system.
-     * 
+     *
      * @return string[] A string of filenames with absolute paths.
      */
     protected static function get_cert_files() {
@@ -1571,7 +1571,7 @@ SQL;
 
     /**
      * Returns the expiration date of the certificate.
-     * 
+     *
      * @param string $certfile The absolute path of the certificate file.
      * @return int The expiration date as Unix timestamp.
      */
@@ -1583,11 +1583,11 @@ SQL;
     }
 
     public static function instance_config_form($group, $instance = null) {
-        
+
     }
 
     public static function instance_config_save($instance, $values) {
-        
+
     }
 
 }

@@ -3,7 +3,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : Jan 22, 2014, 3:55:51 PM
     Author     : olli
 */
@@ -20,11 +20,6 @@ ul#badges li {
   text-align: center;
   float: left;
   margin: 0 15px 15px 0;
-  /*
-                &:hover .badge-wrapper {
-                    .name { .rotate-with-perspective(-179.9deg); }
-                    .description { .rotate-with-perspective; }
-                }*/
 }
 ul#badges li .badge-wrapper,
 ul#badges li .name,
@@ -100,6 +95,22 @@ ul#badges li:hover .badge-wrapper .name,
 ul#badges li:hover .badge-wrapper .description {
   border-color: #888;
   box-shadow: 0 0 10px -2px #666666;
+}
+ul#badges li:hover .badge-wrapper .name {
+  -webkit-perspective: 1000px;
+  -moz-perspective: 1000px;
+  perspective: 1000px;
+  -webkit-transform: rotateY(-179.9deg);
+  -ms-transform: rotateY(-179.9deg);
+  transform: rotateY(-179.9deg);
+}
+ul#badges li:hover .badge-wrapper .description {
+  -webkit-perspective: 1000px;
+  -moz-perspective: 1000px;
+  perspective: 1000px;
+  -webkit-transform: rotateY(0);
+  -ms-transform: rotateY(0);
+  transform: rotateY(0);
 }
 #badge-wrapper {
   overflow: hidden;
