@@ -92,6 +92,7 @@ ul#badges li .badge-wrapper .description {
   transform: rotateY(180deg);
   font-size: 12px;
   overflow: auto;
+  display: none;
 }
 ul#badges li .badge-wrapper .description p {
   padding: .5em;
