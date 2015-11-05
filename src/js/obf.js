@@ -29,32 +29,11 @@
 var Obf = (function() {
     "use strict";
 
-    var groupid = -1;
     var userid = -1;
     var options = {};
 
-    var add_issuance_tab = function() {
-        var subnav = get_page_tabs();
-
-        if (!subnav) {
-            return;
-        }
-
-        // A bit hacky way to test, whether the navigation already contains
-        // the element.
-        if (subnav.find('li a:contains(' + options.lang.badges + ')').size() > 0) {
-            return;
-        }
-
-        var url = window.config.wwwroot + 'interaction/obf/group.php?id=' + groupid;
-        var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
-        var listelement = $j('<li></li>').append(link).addClass('badges');
-
-        subnav.append(listelement);
-    };
-
     var add_backpack_tab = function() {
-        var subnav = get_page_tabs() || get_subnav();
+        var subnav = get_subnav();
 
         if (!subnav) {
             return;
@@ -63,20 +42,6 @@ var Obf = (function() {
         var url = window.config.wwwroot + 'interaction/obf/profile.php?user=' + userid;
         var link = $j('<a></a>').text(options.lang.backpacksettings).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('backpack');
-
-        subnav.append(listelement);
-    };
-
-    var add_supervisor_tab = function() {
-        var subnav = get_subnav().children('li.supervisor').first().children('ul').first();
-
-        if (!subnav) {
-            return;
-        }
-
-        var url = window.config.wwwroot + 'interaction/obf/supervisor.php';
-        var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
-        var listelement = $j('<li></li>').append(link).addClass('badges');
 
         subnav.append(listelement);
     };
@@ -133,45 +98,34 @@ var Obf = (function() {
     };
 
     var get_subnav = function () {
-        return ($j('#sub-nav > ul').size() > 0
-            ? $j('#sub-nav > ul').first()
+        return ($j('#sub-nav ul.nav').size() > 0
+            ? $j('#sub-nav ul.nav').first()
             : ($j('#main-nav #dropdown-nav').size() > 0
                 ? $j('#main-nav #dropdown-nav').first()
                 : get_page_tabs()));
     };
 
     var get_page_tabs = function () {
-        return ($j('ul.in-page-tabs').size() > 0 ? $j('ul.in-page-tabs').first() : null);
+        return ($j('ul.navbar-nav').size() > 0 ? $j('ul.navbar-nav').first() : null);
     };
 
     return {
-        init_group: function(gid, opts) {
-            options = opts;
-            groupid = gid;
-            add_issuance_tab();
-        }
-
-        , init_profile: function(uid, opts) {
+        init_profile: function(uid, opts) {
             options = opts;
             userid = uid;
             add_backpack_tab();
-        }
+        },
 
-        , init_categories: function() {
+        init_categories: function() {
             $j('ul.badge-categories').on('click', 'button', toggle_category);
             $j('button.badge-reset-filter').click(reset_category_filter);
-        }
+        },
 
-        , init_supervisor: function (opts) {
-            options = opts;
-            add_supervisor_tab();
-        }
-
-        , init_issuance_page: function() {
+        init_issuance_page: function() {
             create_issue_to_all_button();
-        }
+        },
 
-        , connect_to_backpack: function(evt) {
+        connect_to_backpack: function(evt) {
             evt.preventDefault();
 
             navigator.id.get(function(assertion) {
@@ -184,16 +138,16 @@ var Obf = (function() {
                             $j('#assertion-error').text(res.message).show();
                         }
                         else {
-                        window.location.reload();
+                            window.location.reload();
                         }
                     });
                 }
             });
-        }
+        },
 
-        , select_backpack_tab: function () {
-            var nav = get_page_tabs() || get_subnav();
-            nav.children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');
+        select_backpack_tab: function () {
+            var nav = get_subnav();
+            nav.children('li.backpack').addClass('active');
         }
     };
 })();

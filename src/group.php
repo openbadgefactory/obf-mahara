@@ -38,7 +38,7 @@ define('GROUP', param_integer('id'));
 
 $group = group_current_group();
 
-if (!is_logged_in() && !$group->public) {
+if ((!is_logged_in() && !$group->public) || !PluginInteractionObf::user_can_issue_badges($USER)) {
     throw new AccessDeniedException();
 }
 

@@ -40,6 +40,10 @@ $group = group_current_group();
 
 define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 
+if (!PluginInteractionObf::user_can_issue_badges($USER)) {
+    throw new AccessDeniedException();
+}
+
 $badgeid = param_variable('badgeid');
 $institution = param_variable('institution');
 $currentpath = '/interaction/obf/issue.php?institution=' . $institution . '&badgeid=' . $badgeid . '&group=' . GROUP;

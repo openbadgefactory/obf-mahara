@@ -126,10 +126,10 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
     }
 
     /**
-     * The hook that extends the main navigation. We make some dirty tricks here
-     * to get our links to show in the menu.
+     * The hook that extends the right navigation. We make some dirty tricks
+     * here to get our links to show in the menu.
      */
-    public static function menu_items() {
+    public static function right_nav_menu_items() {
         global $USER, $HEADDATA, $THEME;
 
         if (is_null($HEADDATA)) {
@@ -146,32 +146,15 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         // So until Mahara allows plugins to extend the navigation more freely,
         // we do it like this.
         $menuexists = defined('MENUITEM');
+        $menuitem = MENUITEM;
 
         if ($menuexists && !isset($HEADDATA['interaction.obf'])) {
             $userid = $USER->id;
             $obfheaddata = '';
-            $isgrouppage = strpos(MENUITEM, 'groups/') === 0;
             $isprofilepage = strpos(MENUITEM, 'settings/') === 0;
-            $canissuebadges = self::user_can_issue_badges($USER);
-            $groupid = defined('GROUP') ? (int) GROUP : null;
-
-            // Add our JS-files to group pages.
-            if ($isgrouppage && !is_null($groupid) && $canissuebadges &&
-                    group_user_access($groupid) !== false) {
-                $jsonopts = json_encode(array(
-                    'lang' => array(
-                        'issuetoall' => get_string('issuetoall',
-                                'interaction.obf'),
-                        'badges' => get_string('badges', 'interaction.obf')
-                )));
-
-                $addcss = (MENUITEM != 'groups/badges');
-                $obfheaddata .= self::get_assets($THEME, 'init_group',
-                                array($groupid, $jsonopts), $addcss);
-            }
 
             // Add our JS-files to profile pages.
-            else if ($isprofilepage) {
+            if ($isprofilepage) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
                         'backpacksettings' => get_string('backpacksettings',
