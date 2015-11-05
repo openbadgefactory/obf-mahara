@@ -35,7 +35,7 @@ var Obf = (function() {
     var add_backpack_tab = function() {
         var subnav = get_subnav();
 
-        if (!subnav) {
+        if (subnav === null) {
             return;
         }
 
@@ -98,15 +98,23 @@ var Obf = (function() {
     };
 
     var get_subnav = function () {
-        return ($j('#sub-nav ul.nav').size() > 0
-            ? $j('#sub-nav ul.nav').first()
-            : ($j('#main-nav #dropdown-nav').size() > 0
-                ? $j('#main-nav #dropdown-nav').first()
-                : get_page_tabs()));
-    };
+        // HACK. In default theme without dropdown navigation the sub navigation
+        // is found under #sub-nav ul.nav. However when the dropdown navigation
+        // is enabled, the account settings links are located in
+        // #main ul.nav-inpage. If the theme changes the navigation structure
+        // from this, the links won't appear.
+        var possible_subnavs = ['#sub-nav ul.nav', '#main ul.nav-inpage'];
+        var subnav = null;
 
-    var get_page_tabs = function () {
-        return ($j('ul.navbar-nav').size() > 0 ? $j('ul.navbar-nav').first() : null);
+        for (var i = 0; i < possible_subnavs.length; i++) {
+            subnav = $j(possible_subnavs[i]);
+
+            if (subnav.size() > 0) {
+                return subnav.first();
+            }
+        }
+
+        return null;
     };
 
     return {
@@ -147,7 +155,10 @@ var Obf = (function() {
 
         select_backpack_tab: function () {
             var nav = get_subnav();
-            nav.children('li.backpack').addClass('active');
+
+            if (nav !== null) {
+                nav.children('li.backpack').addClass('active');
+            }
         }
     };
 })();

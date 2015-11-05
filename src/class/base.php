@@ -31,8 +31,6 @@ interface ObfInterface {
 
     static function get_head_data($menuitem, $menuexists, $userid, $theme);
 
-    static function navigation_hook($user, &$items);
-
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 
     static function get_institution_admins(Institution $institution);
@@ -122,7 +120,21 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
                 'weight' => 100,
             );
         }
+
         return $menu;
+    }
+
+    public static function institution_menu_items() {
+        return array('manageinstitutions/obf' => array(
+                'path' => 'manageinstitutions/obf',
+                'url' => 'interaction/obf/institution.php',
+                'title' => get_string('badges', 'interaction.obf'),
+                'weight' => 13)
+            );
+    }
+
+    public static function admin_menu_items() {
+        return self::institution_menu_items();
     }
 
     /**
@@ -138,7 +150,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
 
         // We want to see our badge links in the main navigation. Unfortunately
         // it's not possible to extend the different sub navigations (in
-        // profile and in groups), so we need this "small" hack. Mahara uses
+        // profile), so we need this "small" hack. Mahara uses
         // global variables quite a lot. In this case we use global $HEADDATA
         // variable to include our custom JavaScript file to every page we want.
         // Our scripts create the links to the navigation.
@@ -146,7 +158,6 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         // So until Mahara allows plugins to extend the navigation more freely,
         // we do it like this.
         $menuexists = defined('MENUITEM');
-        $menuitem = MENUITEM;
 
         if ($menuexists && !isset($HEADDATA['interaction.obf'])) {
             $userid = $USER->id;
@@ -174,8 +185,6 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         }
 
         $items = array();
-
-        static::navigation_hook($USER, $items);
 
         return $items;
     }

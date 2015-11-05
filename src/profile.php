@@ -47,6 +47,7 @@ if ($backpackemail === false) {
         'elements' => array(
             'submit' => array(
                 'type' => 'submit',
+                'class' => 'btn-primary',
                 'value' => get_string('savebackpack', 'interaction.obf')
             )
         )
@@ -78,7 +79,7 @@ function backpack_disconnect_submit(Pieform $form, $values) {
 }
 
 function backpack_submit(Pieform $form, $values) {
-    
+
 }
 
 function get_backpack_email() {
