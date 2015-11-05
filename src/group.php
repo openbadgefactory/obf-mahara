@@ -49,9 +49,13 @@ $badge = null;
 $currentpath = 'interaction/obf/group.php?id=' . GROUP;
 $institutions = PluginInteractionObf::get_issuable_institutions($USER);
 $content = '';
-$subpages = array('badges', 'history');
+$subpages = array(
+    'badges' => array('icon' => 'certificate'),
+    'history' => array('icon' => 'trophy')
+);
+
 $paramtype = param_alpha('page', 'badges');
-$page = !in_array($paramtype, $subpages) ? 'badges' : $paramtype;
+$page = !in_array($paramtype, array_keys($subpages)) ? 'badges' : $paramtype;
 $offset = param_integer('offset', 0);
 
 switch ($page) {
@@ -64,7 +68,8 @@ switch ($page) {
         break;
 }
 
-$smarty = smarty(array(), array(), array(), array('sidebars' => false));
+$smarty = smarty(array('interaction/obf/js/obf.js'), array(), array(),
+        array('sidebars' => false));
 $smarty->assign('group', GROUP);
 $smarty->assign('page', $page);
 $smarty->assign('subpages', $subpages);

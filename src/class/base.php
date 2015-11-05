@@ -145,8 +145,8 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         //
         // So until Mahara allows plugins to extend the navigation more freely,
         // we do it like this.
-
         $menuexists = defined('MENUITEM');
+
         if ($menuexists && !isset($HEADDATA['interaction.obf'])) {
             $userid = $USER->id;
             $obfheaddata = '';
@@ -1059,28 +1059,33 @@ SQL;
                 'institution' => $institution)
         );
 
+        $elements = array();
         $categories = self::get_categories($institution);
+
+        if (count($categories) > 0) {
+            $elements['categories'] = array(
+                'type' => 'select',
+                'size' => 3,
+                'multiple' => true,
+                'options' => array_combine($categories, $categories),
+                'description' => get_string('selectissuancecategorieshelp',
+                        'interaction.obf'),
+                'title' => get_string('selectissuancecategories',
+                        'interaction.obf'),
+                'defaultvalue' => self::get_allowed_institution_categories($institution),
+                'collapseifoneoption' => false,
+            );
+        }
+
+        $elements['users'] = $userlistelement;
+        $elements['submit'] = array(
+            'type' => 'submit',
+            'value' => get_string('save', 'interaction.obf')
+        );
+
         $userlistform = array(
             'name' => 'institutionissuers',
-            'elements' => array(
-                'categories' => array(
-                    'type' => 'select',
-                    'size' => 5,
-                    'multiple' => true,
-                    'options' => array_combine($categories, $categories),
-                    'description' => get_string('selectissuancecategorieshelp',
-                            'interaction.obf'),
-                    'title' => get_string('selectissuancecategories',
-                            'interaction.obf'),
-                    'defaultvalue' => self::get_allowed_institution_categories($institution),
-                    'collapseifoneoption' => false,
-                ),
-                'users' => $userlistelement,
-                'submit' => array(
-                    'type' => 'submit',
-                    'value' => get_string('save', 'interaction.obf')
-                )
-            )
+            'elements' => $elements
         );
 
         $content = pieform($userlistform);
@@ -1100,7 +1105,6 @@ SQL;
         $expiresdefault = empty($badge->expires) ? null : strtotime('+ ' . $badge->expires . ' months');
         $form = pieform(array(
             'name' => 'issuance',
-            'renderer' => 'table',
             'method' => 'post',
             'elements' => array(
                 'badge' => array(
@@ -1153,6 +1157,7 @@ SQL;
                 ),
                 'submit' => array(
                     'type' => 'submit',
+                    'class' => 'btn-primary',
                     'value' => get_string('issuebadge', $section)
                 )
             )
@@ -1273,11 +1278,10 @@ SQL;
 
         // Institution is not yet authenticated, show the authentication form.
         if (!$authenticated) {
-            $content .= '<div class="info">' .
+            $content .= '<div class="alert alert-info">' .
                     get_string('authenticationhelp', 'interaction.obf') . '</div>';
             $formdefs = array(
                 'name' => 'token',
-                'renderer' => 'table',
                 'elements' => array(
                     'token' => array(
                         'type' => 'textarea',
@@ -1298,7 +1302,6 @@ SQL;
         else {
             $formdefs = array(
                 'name' => 'disconnect',
-                'renderer' => 'table',
                 'jsform' => false,
                 'presubmitcallback' => null,
                 'elements' => array(

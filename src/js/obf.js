@@ -1,3 +1,5 @@
+/* global $j */
+
 /**
  * Mahara: Electronic portfolio, weblog, resume builder and social networking
  * Copyright (C) 2006-2009 Catalyst IT Ltd and others; see:
@@ -33,17 +35,17 @@ var Obf = (function() {
 
     var add_issuance_tab = function() {
         var subnav = get_page_tabs();
-        
+
         if (!subnav) {
             return;
         }
-        
+
         // A bit hacky way to test, whether the navigation already contains
         // the element.
         if (subnav.find('li a:contains(' + options.lang.badges + ')').size() > 0) {
             return;
         }
-        
+
         var url = window.config.wwwroot + 'interaction/obf/group.php?id=' + groupid;
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
@@ -53,25 +55,25 @@ var Obf = (function() {
 
     var add_backpack_tab = function() {
         var subnav = get_page_tabs() || get_subnav();
-        
+
         if (!subnav) {
             return;
         }
-        
+
         var url = window.config.wwwroot + 'interaction/obf/profile.php?user=' + userid;
         var link = $j('<a></a>').text(options.lang.backpacksettings).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('backpack');
 
         subnav.append(listelement);
     };
-    
+
     var add_supervisor_tab = function() {
         var subnav = get_subnav().children('li.supervisor').first().children('ul').first();
 
         if (!subnav) {
             return;
         }
-        
+
         var url = window.config.wwwroot + 'interaction/obf/supervisor.php';
         var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('badges');
@@ -114,25 +116,30 @@ var Obf = (function() {
             $j(this)[show_badge ? 'fadeIn' : 'fadeOut']('fast');
         });
     };
-    
+
     var create_issue_to_all_button = function () {
-        var btn = $j('<button></button>').attr('type', 'button').text(get_string('issuetoall'));
+        var btn = $j('<button />')
+                .addClass('btn btn-primary btn-sm')
+                .attr('type', 'button')
+                .attr('id', 'issue-to-all')
+                .text(get_string('issuetoall'));
+
         btn.click(function () {
             $j('select#users_potential option').attr('selected', true);
             users_moveopts('potential', 'members');
         });
-        
+
         $j('td.lrbuttons').append(btn);
     };
 
-    var get_subnav = function () {        
+    var get_subnav = function () {
         return ($j('#sub-nav > ul').size() > 0
             ? $j('#sub-nav > ul').first()
             : ($j('#main-nav #dropdown-nav').size() > 0
                 ? $j('#main-nav #dropdown-nav').first()
                 : get_page_tabs()));
     };
-    
+
     var get_page_tabs = function () {
         return ($j('ul.in-page-tabs').size() > 0 ? $j('ul.in-page-tabs').first() : null);
     };
@@ -154,29 +161,14 @@ var Obf = (function() {
             $j('ul.badge-categories').on('click', 'button', toggle_category);
             $j('button.badge-reset-filter').click(reset_category_filter);
         }
-        
+
         , init_supervisor: function (opts) {
             options = opts;
             add_supervisor_tab();
         }
 
-        , init_issuance_page: function() {            
+        , init_issuance_page: function() {
             create_issue_to_all_button();
-            
-            $j('#badge-issue-form-wrapper .tabswrap ul').on('click', 'li', function (evt) {
-                evt.preventDefault();
-                
-                $j(this).siblings().removeClass('current-tab');
-                $j(this).siblings().children('a').removeClass('current-tab');
-                $j(this).addClass('current-tab');
-                $j(this).children('a').addClass('current-tab');
-                
-                var tabname = $j(this).data('tab');
-                var content = $j('#badge-issue-form-wrapper .subpage div[data-tab-content="' + tabname +'"]');
-                
-                content.siblings().hide();
-                content.show();
-            });
         }
 
         , connect_to_backpack: function(evt) {
@@ -198,7 +190,7 @@ var Obf = (function() {
                 }
             });
         }
-        
+
         , select_backpack_tab: function () {
             var nav = get_page_tabs() || get_subnav();
             nav.children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');

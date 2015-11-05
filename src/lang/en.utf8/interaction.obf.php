@@ -85,7 +85,6 @@ $string['institutionissuershelp'] = 'Select users who can issue badges in the '
         . 'groups they are members of.';
 $string['institutionissuersupdated'] = 'Issuance settings updated.';
 $string['institutionmembers'] = 'Members of the institution';
-$string['institutionselectordescription'] = '';
 $string['invalidassertion'] = 'Couldn\'t verify email address. Reason: %s';
 $string['issuancedetails'] = 'Issuance details';
 $string['issuancefailed'] = 'Badge issuance failed. Please try again later.';

@@ -54,7 +54,7 @@ $pagestrings = array(
 // HOX! All the forms need to be created before smarty() -call. Otherwise
 // the Pieform-JS isn't added to document head.
 $form = PluginInteractionObf::get_issuance_form($badge, $institution);
-$smarty = smarty(array(), array(), $pagestrings, array('sidebars' => false));
+$smarty = smarty(array('interaction/obf/js/obf.js'), array(), $pagestrings, array('sidebars' => false));
 $smarty->assign('group', GROUP);
 
 if ($badge !== false) {
