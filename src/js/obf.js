@@ -1,3 +1,5 @@
+/* global $j */
+
 /**
  * Mahara: Electronic portfolio, weblog, resume builder and social networking
  * Copyright (C) 2006-2009 Catalyst IT Ltd and others; see:
@@ -27,54 +29,19 @@
 var Obf = (function() {
     "use strict";
 
-    var groupid = -1;
     var userid = -1;
     var options = {};
 
-    var add_issuance_tab = function() {
-        var subnav = get_page_tabs();
-        
-        if (!subnav) {
-            return;
-        }
-        
-        // A bit hacky way to test, whether the navigation already contains
-        // the element.
-        if (subnav.find('li a:contains(' + options.lang.badges + ')').size() > 0) {
-            return;
-        }
-        
-        var url = window.config.wwwroot + 'interaction/obf/group.php?id=' + groupid;
-        var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
-        var listelement = $j('<li></li>').append(link).addClass('badges');
-
-        subnav.append(listelement);
-    };
-
     var add_backpack_tab = function() {
-        var subnav = get_page_tabs() || get_subnav();
-        
-        if (!subnav) {
+        var subnav = get_subnav();
+
+        if (subnav === null) {
             return;
         }
-        
+
         var url = window.config.wwwroot + 'interaction/obf/profile.php?user=' + userid;
         var link = $j('<a></a>').text(options.lang.backpacksettings).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('backpack');
-
-        subnav.append(listelement);
-    };
-    
-    var add_supervisor_tab = function() {
-        var subnav = get_subnav().children('li.supervisor').first().children('ul').first();
-
-        if (!subnav) {
-            return;
-        }
-        
-        var url = window.config.wwwroot + 'interaction/obf/supervisor.php';
-        var link = $j('<a></a>').text(options.lang.badges).attr('href', url);
-        var listelement = $j('<li></li>').append(link).addClass('badges');
 
         subnav.append(listelement);
     };
@@ -114,72 +81,59 @@ var Obf = (function() {
             $j(this)[show_badge ? 'fadeIn' : 'fadeOut']('fast');
         });
     };
-    
+
     var create_issue_to_all_button = function () {
-        var btn = $j('<button></button>').attr('type', 'button').text(get_string('issuetoall'));
+        var btn = $j('<button />')
+                .addClass('btn btn-primary btn-sm')
+                .attr('type', 'button')
+                .attr('id', 'issue-to-all')
+                .text(get_string('issuetoall'));
+
         btn.click(function () {
             $j('select#users_potential option').attr('selected', true);
             users_moveopts('potential', 'members');
         });
-        
+
         $j('td.lrbuttons').append(btn);
     };
 
-    var get_subnav = function () {        
-        return ($j('#sub-nav > ul').size() > 0
-            ? $j('#sub-nav > ul').first()
-            : ($j('#main-nav #dropdown-nav').size() > 0
-                ? $j('#main-nav #dropdown-nav').first()
-                : get_page_tabs()));
-    };
-    
-    var get_page_tabs = function () {
-        return ($j('ul.in-page-tabs').size() > 0 ? $j('ul.in-page-tabs').first() : null);
+    var get_subnav = function () {
+        // HACK. In default theme without dropdown navigation the sub navigation
+        // is found under #sub-nav ul.nav. However when the dropdown navigation
+        // is enabled, the account settings links are located in
+        // #main ul.nav-inpage. If the theme changes the navigation structure
+        // from this, the links won't appear.
+        var possible_subnavs = ['#sub-nav ul.nav', '#main ul.nav-inpage'];
+        var subnav = null;
+
+        for (var i = 0; i < possible_subnavs.length; i++) {
+            subnav = $j(possible_subnavs[i]);
+
+            if (subnav.size() > 0) {
+                return subnav.first();
+            }
+        }
+
+        return null;
     };
 
     return {
-        init_group: function(gid, opts) {
-            options = opts;
-            groupid = gid;
-            add_issuance_tab();
-        }
-
-        , init_profile: function(uid, opts) {
+        init_profile: function(uid, opts) {
             options = opts;
             userid = uid;
             add_backpack_tab();
-        }
+        },
 
-        , init_categories: function() {
+        init_categories: function() {
             $j('ul.badge-categories').on('click', 'button', toggle_category);
             $j('button.badge-reset-filter').click(reset_category_filter);
-        }
-        
-        , init_supervisor: function (opts) {
-            options = opts;
-            add_supervisor_tab();
-        }
+        },
 
-        , init_issuance_page: function() {            
+        init_issuance_page: function() {
             create_issue_to_all_button();
-            
-            $j('#badge-issue-form-wrapper .tabswrap ul').on('click', 'li', function (evt) {
-                evt.preventDefault();
-                
-                $j(this).siblings().removeClass('current-tab');
-                $j(this).siblings().children('a').removeClass('current-tab');
-                $j(this).addClass('current-tab');
-                $j(this).children('a').addClass('current-tab');
-                
-                var tabname = $j(this).data('tab');
-                var content = $j('#badge-issue-form-wrapper .subpage div[data-tab-content="' + tabname +'"]');
-                
-                content.siblings().hide();
-                content.show();
-            });
-        }
+        },
 
-        , connect_to_backpack: function(evt) {
+        connect_to_backpack: function(evt) {
             evt.preventDefault();
 
             navigator.id.get(function(assertion) {
@@ -192,16 +146,19 @@ var Obf = (function() {
                             $j('#assertion-error').text(res.message).show();
                         }
                         else {
-                        window.location.reload();
+                            window.location.reload();
                         }
                     });
                 }
             });
-        }
-        
-        , select_backpack_tab: function () {
-            var nav = get_page_tabs() || get_subnav();
-            nav.children('li.backpack').addClass('current-tab selected').children('a').addClass('current-tab');
+        },
+
+        select_backpack_tab: function () {
+            var nav = get_subnav();
+
+            if (nav !== null) {
+                nav.children('li.backpack').addClass('active');
+            }
         }
     };
 })();

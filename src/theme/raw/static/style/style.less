@@ -3,7 +3,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : Jan 22, 2014, 3:55:51 PM
     Author     : olli
 */
@@ -85,23 +85,6 @@ ul.badge-categories {
     li {
         float: left;
         margin: 0 3px 3px 0;
-
-        button {
-            cursor: pointer;
-            outline: none;
-            background: #fff;
-            font-weight: normal;
-            margin: 0;
-            padding: 6px 14px;
-            border-radius: 5px;
-            text-shadow: none !important;
-            border: solid #ababab 1px;
-            color: #333 !important;
-
-            &.active, &:hover { background: #ebebeb; }
-            &.active { .box-shadow(inset 0 3px 5px rgba(0,0,0,0.125)); }
-        }
-
     }
 }
 
@@ -112,11 +95,13 @@ ul.badge-categories {
     padding: 1em;
     overflow: hidden;
     margin-bottom: 1em;
+
     #badge-image-wrapper {
         float: left;
         width: 120px;
         img { width: 100%; }
     }
+
     #badge-detail-wrapper {
         margin-left: 140px;
         dl#badge-details {
@@ -129,41 +114,12 @@ ul.badge-categories {
 
 table.events td.image img { width: 22px; }
 
-#badge-issue-wrapper {
-    margin-left: 280px;
-    
-    #badge-issue-details {
-        width: 265px;
-        float: left;
-        margin-left: -280px;
-        
-        #badge-issue-image {
-            padding-bottom: 1.5em;
-            text-align: center;
-            
-            img { max-width: 100%; }
-        }
-        
-        #badge-issue-data {
-            div { padding: 3px 5px; margin-bottom: 1px; background: #f8f8f8; }
-        }
-    }
-    
-    #badge-issue-form-wrapper {
-        margin-left: 0;
-        float: left;
-        width: 100%;
-        
-        table { width: 100%; }
-        .userlisttable {
-            min-width: 0;
-            td.lrfieldlists {
-                width: 40%;
-                select { max-width: none; }
-            }
-            td.lrbuttons { width: 20%; vertical-align: middle; }
-        }
-    }
+form.pieform select.form-control[multiple] {
+    height: auto;
+}
+
+button#issue-to-all {
+    margin-top: 1em;
 }
 
 .rotate-with-perspective (@angle: 0) {
@@ -208,7 +164,7 @@ table.events td.image img { width: 22px; }
 
 /* From Boostrap mixins */
 .box-sizing(@boxmodel) {
-  -webkit-box-sizing: @boxmodel;
-     -moz-box-sizing: @boxmodel;
-          box-sizing: @boxmodel;
+    -webkit-box-sizing: @boxmodel;
+    -moz-box-sizing: @boxmodel;
+    box-sizing: @boxmodel;
 }

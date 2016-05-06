@@ -1,11 +1,8 @@
-<div class="tabswrap">
-    <ul class="in-page-tabs">
-        {foreach from=$tabs item=tab}
-            <li{if $tab == $selected} class="current-tab"{/if}>
-                <a {if $tab == $selected}class="current-tab" {/if} href="{$WWWROOT}interaction/obf/{$page}&page={$tab}">{str tag=$tab section="interaction.obf"}</a>
-            </li>
-        {/foreach}
-    </ul>
+<div class="btn-group btn-toolbar btn-group-top">
+    {foreach from=$tabs key=id item=tab}
+        <a class="btn btn-default{if $id == $selected} active{/if}" href="{$WWWROOT}interaction/obf/{$page}&page={$id}">
+            <span class="icon icon-lg icon-{$tab.icon}"></span>
+            <span class="btn-title">{str tag=$id section="interaction.obf"}</span>
+        </a>
+    {/foreach}
 </div>
-
-<div class="cb"></div>

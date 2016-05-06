@@ -41,7 +41,7 @@ define('TITLE', get_string('openbadgefactory', 'interaction.obf'));
 
 $institutionparam = param_alphanum('institution', '');
 $content = '';
-$subpages = array('settings');
+$subpages = array('settings' => array('icon' => 'cogs'));
 $authenticated = false;
 $page = param_alpha('page', 'settings');
 $selector = institution_selector_for_page($institutionparam,
@@ -55,11 +55,11 @@ try {
 }
 
 if ($authenticated) {
-    $subpages[] = 'privileges';
-    $subpages[] = 'badges';
+    $subpages['privileges'] = array('icon' => 'users');
+    $subpages['badges'] = array('icon' => 'certificate');
 }
 
-// If the institution isn't authenticated yet, always show the settings page only.     
+// If the institution isn't authenticated yet, always show the settings page only.
 else {
     $page = 'settings';
 }

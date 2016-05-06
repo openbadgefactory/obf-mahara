@@ -40,6 +40,10 @@ $group = group_current_group();
 
 define('TITLE', $group->name . ' - ' . get_string('badges', 'interaction.obf'));
 
+if (!PluginInteractionObf::user_can_issue_badges($USER)) {
+    throw new AccessDeniedException();
+}
+
 $badgeid = param_variable('badgeid');
 $institution = param_variable('institution');
 $currentpath = '/interaction/obf/issue.php?institution=' . $institution . '&badgeid=' . $badgeid . '&group=' . GROUP;
@@ -54,7 +58,7 @@ $pagestrings = array(
 // HOX! All the forms need to be created before smarty() -call. Otherwise
 // the Pieform-JS isn't added to document head.
 $form = PluginInteractionObf::get_issuance_form($badge, $institution);
-$smarty = smarty(array(), array(), $pagestrings, array('sidebars' => false));
+$smarty = smarty(array('interaction/obf/js/obf.js'), array(), $pagestrings, array('sidebars' => false));
 $smarty->assign('group', GROUP);
 
 if ($badge !== false) {

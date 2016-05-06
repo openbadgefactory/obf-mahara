@@ -35,9 +35,14 @@ require('lib.php');
 define('MENUITEM', 'manageinstitutions/obf');
 define('INSTITUTIONALADMIN', 1);
 
-$subpages = array('history', 'email');
+$subpages = array(
+    'history' => array('icon' => 'trophy'),
+    'email' => array('icon' => 'envelope')
+);
+
+
 $paramtype = param_alpha('page', 'history');
-$type = !in_array($paramtype, $subpages) ? 'history' : $paramtype;
+$type = !in_array($paramtype, array_keys($subpages)) ? 'history' : $paramtype;
 $badgeid = param_variable('badgeid');
 $institution = param_alphanum('institution');
 $content = '';
@@ -77,11 +82,9 @@ switch ($type) {
 
         $emailform = pieform(array(
             'name' => 'emailtemplate',
-            'renderer' => 'table',
             'method' => 'post',
             'elements' => $elements
-                )
-        );
+        ));
 
         $content = $emailform;
 
