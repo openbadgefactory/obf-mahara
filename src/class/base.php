@@ -343,7 +343,7 @@ HTML;
         $hascategorylimit = count($allowedcategories) > 0;
 
         if (!empty($clientid)) {
-            $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '?draft=0';
+            $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'badge/' . $clientid . '?draft=0';
             $ret = mahara_http_request($curlopts);
 
             if ($ret->info['http_code'] === 200) {
@@ -407,7 +407,7 @@ HTML;
     public static function get_categories($institution, $clientid = null) {
         $curlopts = self::get_curl_opts($institution);
         $clientid = is_null($clientid) ? self::get_client_id($institution) : $clientid;
-        $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '/_/categorylist';
+        $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'badge/' . $clientid . '/_/categorylist';
 
         $ret = mahara_http_request($curlopts);
         $categories = json_decode($ret->data);
@@ -452,7 +452,7 @@ HTML;
             return false;
         }
 
-        $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '/' . $badgeid;
+        $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'badge/' . $clientid . '/' . $badgeid;
         $resp = mahara_http_request($curlopts);
 
         if ($resp->info['http_code'] !== 200) {
@@ -484,7 +484,7 @@ HTML;
         }
 
         $aci = empty($apiconsumerid) ? self::get_api_consumer_id() : $apiconsumerid;
-        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid .
+        $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'event/' . $clientid .
                 '?api_consumer_id=' . $aci . '&offset=' . $offset . '&limit=' .
                 $limit . '&order_by=desc';
 
@@ -523,6 +523,33 @@ HTML;
         return null;
     }
 
+    /**
+     * Sanitizes api url.
+     * 
+     * @param string $apiurl
+     * @retunr string Sanitized api url.
+     */
+    public static function sanitize_api_url($apiurl) {
+        if (empty($apiurl)) {
+            return '';
+        }
+        $apiurl = trim($apiurl);
+        if (!preg_match("~^(?:f|ht)tps?://~i", $apiurl)) {
+            $apiurl = "https://" . $apiurl;
+        }
+        $parts = parse_url($apiurl);
+        if (array_key_exists('host', $parts)) {
+            $path = $parts['path'];
+            if (!preg_match("~/v[1-9]/?$~i", $path)) {
+                $path .= (substr($path, -1, 1) == '/' ? 'v1/' : '/v1/');
+            }
+            if (substr($path, -1, 1) != '/') {
+                $path .= '/';
+            }
+            return 'https://' . $parts['host'] . $path;
+        }
+        return '';
+    }
     /**
      * Saves the badge email template to database.
      * 
@@ -617,7 +644,34 @@ HTML;
     public static function get_api_consumer_id($groupid = null) {
         return (is_null($groupid) ? '' : API_CONSUMER_ID . '_group_' . $groupid);
     }
-
+    
+    /**
+     * Return the api url.
+     * 
+     * @param string $institution The institution id.
+     * @return string The api url.
+     */
+    public static function get_api_url($institution = null) {
+        if (!is_null($institution)) {
+            $institution_api = get_config_plugin('interaction', 'obf', 
+                    self::get_api_url_config_key_name($institution));
+            if (!empty($institution_api)) {
+                return $institution_api;
+            }
+        }
+        return API_URL;
+    }
+    
+    /**
+     * Return api config key name.
+     * 
+     * @param string $institution The institution id.
+     * @return string The config key name.
+     */
+    public static function get_api_url_config_key_name($institution = null) {
+        return $institution . '.apiurl';
+    }
+    
     /**
      * Issues a badge through the OBF API.
      * 
@@ -660,7 +714,7 @@ HTML;
 
         $clientid = self::get_client_id($institution);
         $curlopts = self::get_curl_opts($institution);
-        $curlopts[CURLOPT_URL] = API_URL . 'badge/' . $clientid . '/' . $badgeid;
+        $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'badge/' . $clientid . '/' . $badgeid;
         $curlopts[CURLOPT_POST] = true;
         $curlopts[CURLOPT_POSTFIELDS] = json_encode($postdata);
 
@@ -698,7 +752,7 @@ HTML;
         }
 
         $aci = self::get_api_consumer_id($groupid);
-        $curlopts[CURLOPT_URL] = API_URL . 'event/' . $clientid . '?api_consumer_id=' .
+        $curlopts[CURLOPT_URL] = self::get_api_url($institution) . 'event/' . $clientid . '?api_consumer_id=' .
                 $aci . '&count_only=1';
 
         if (!is_null($badgeid)) {
@@ -904,12 +958,16 @@ SQL;
      * 
      * @param string $institution The institution id.
      * @param string $token The certificate signing request token from OBF.
+     * @param string $apiurl The url to the api the institution is authenticating against.
      * @return boolean Returns true if authentication was successful.
      * @throws Exception If the authentication fails.
      */
-    public static function authenticate($institution, $token) {
+    public static function authenticate($institution, $token, $apiurl = null) {
         $curlopts = self::get_curl_opts($institution);
-        $curlopts[CURLOPT_URL] = API_URL . 'client/OBF.rsa.pub';
+        if (empty($apiurl)) {
+            $apiurl = self::get_api_url($institution);
+        }
+        $curlopts[CURLOPT_URL] = $apiurl . 'client/OBF.rsa.pub';
 
         // We don't have these yet.
         unset($curlopts[CURLOPT_SSLCERT]);
@@ -942,6 +1000,8 @@ SQL;
 
         set_config_plugin('interaction', 'obf',
                 self::get_config_key_name($institution), $clientid);
+        set_config_plugin('interaction', 'obf',
+                self::get_api_url_config_key_name($institution), $apiurl);
 
         // Create a new private key.
         $config = array('private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA);
@@ -964,7 +1024,7 @@ SQL;
         }
 
         $postdata = json_encode(array('signature' => $signature, 'request' => $csrout));
-        $curlopts[CURLOPT_URL] = API_URL . 'client/' . $clientid . '/sign_request';
+        $curlopts[CURLOPT_URL] = $apiurl . 'client/' . $clientid . '/sign_request';
         $curlopts[CURLOPT_POST] = true;
         $curlopts[CURLOPT_POSTFIELDS] = $postdata;
 
@@ -1227,7 +1287,7 @@ SQL;
             return false;
         }
 
-        $url = API_URL . 'client/' . $clientid;
+        $url = self::get_api_url($institution) . 'client/' . $clientid;
         $curlopts = self::get_curl_opts($institution);
         $curlopts[CURLOPT_URL] = $url;
         $response = mahara_http_request($curlopts);
@@ -1279,6 +1339,12 @@ SQL;
                 'name' => 'token',
                 'renderer' => 'table',
                 'elements' => array(
+                    'api_url' => array(
+                        'type' => 'text',
+                        'title' => get_string('apiurl', 'interaction.obf'),
+                        'defaultvalue' => PluginInteractionObf::get_api_url($institution),
+                        'rules' => array('required' => true)
+                    ),
                     'token' => array(
                         'type' => 'textarea',
                         'title' => get_string('requesttoken', 'interaction.obf'),

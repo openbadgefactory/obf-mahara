@@ -121,8 +121,9 @@ function token_submit(Pieform $form, $values) {
             throw new Exception(get_string('notadminforinstitution',
                     'interaction.obf'));
         }
+        $values['api_url'] = PluginInteractionObf::sanitize_api_url($values['api_url']);
 
-        PluginInteractionObf::authenticate($institution, $values['token']);
+        PluginInteractionObf::authenticate($institution, $values['token'], $values['api_url']);
         $SESSION->add_ok_msg(get_string('authenticationsuccessful',
                         'interaction.obf'));
     } catch (Exception $ex) {
