@@ -110,6 +110,7 @@ $smarty->assign('content', $content);
 $smarty->assign('page', $page);
 $smarty->assign('subpages', $subpages);
 $smarty->assign('institution', $institution);
+$smarty->assign('islegacymahara', PluginInteractionObf::is_legacy_mahara());
 $smarty->assign('INLINEJAVASCRIPT', $selector['institutionselectorjs']);
 $smarty->display('interaction:obf:manage.tpl');
 

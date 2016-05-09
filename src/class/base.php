@@ -54,6 +54,11 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
      * @var stdClass[]
      */
     protected static $badgecache = array();
+    
+    /**
+     * Are we running on 1. or > 15.* 
+     */
+    protected static $legacymahara = null;
 
     /**
      * Returns the timed events of this plugin.
@@ -67,6 +72,19 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         $checkcertage->minute = '23';
 
         return array($checkcertage);
+    }
+    
+    public static function is_legacy_mahara() {
+        global $CFG;
+        if (!is_null(self::$legacymahara)) {
+            return self::$legacymahara;
+        }
+        $libdir = (isset($CFG->libdir) ? $CFG->libdir : $CFG->libroot);
+        global $config;
+        require_once($libdir . 'version.php');
+        $maharaversion = isset($config) && isset($config->release) ? $config->release : '1.0';
+        self::$legacymahara = version_compare($maharaversion, '15.0', '<');
+        return self::$legacymahara;
     }
 
     /**
@@ -138,6 +156,12 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
     }
 
     /**
+     * @see self::right_nav_menu_items
+     */
+    public static function menu_items() {
+        return self::right_nav_menu_items();
+    }
+    /**
      * The hook that extends the right navigation. We make some dirty tricks
      * here to get our links to show in the menu.
      */
@@ -185,7 +209,10 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
         }
 
         $items = array();
-
+        
+        if (self::is_legacy_mahara()) {
+            static::navigation_hook($USER, $items);
+        }
         return $items;
     }
 
