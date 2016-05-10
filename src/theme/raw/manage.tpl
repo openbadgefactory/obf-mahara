@@ -4,10 +4,12 @@
 <h1>{str tag="openbadgefactory" section="interaction.obf"}</h1>
 {/if}
 
-{include file="interaction:obf:tabs.tpl" tabs=$subpages icons=$icons selected=$page page="institution.php?institution=$institution"}
-<div class="with-heading">&nbsp;</div>
+<p>{str tag="institutionselectordescription" section="interaction.obf"}</p>
+{$institutionselector|safe}
 
-<div class="panel panel-default panel-body">
+{include file="interaction:obf:tabs.tpl" tabs=$subpages selected=$page page="institution.php?institution=$institution"}
+
+<div class="subpage">
     {$content|safe}
 </div>
 

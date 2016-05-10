@@ -84,6 +84,7 @@ $string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myö
         . 'osaamismerkkejä omissa ryhmissään.';
 $string['institutionissuersupdated'] = 'Myöntämisasetukset päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
+$string['institutionselectordescription'] = '';
 $string['invalidassertion'] = 'Sähköpostiosoitteen varmistus epäonnistui. Syy: %s';
 $string['issuancedetails'] = 'Myöntämisasetukset';
 $string['issuancefailed'] = 'Merkin myöntäminen epäonnistui. Yritä myöhemmin uudelleen.';
@@ -113,6 +114,6 @@ $string['tokenerror'] = 'Valtuutus epäonnistui. Ole hyvä ja tarkista, että '
         . 'kirjoitit valtuutusavaimen kokonaisuudessaan.';
 $string['youhaveissuedbadgesmessage'] = 'Olet myöntänyt osaamismerkin "%s"'
         . ' seuraaville jäsenille:
-
+            
 %s';
 $string['youhaveissuedbadgessubject'] = 'Vahvistus osaamismerkin myöntämisestä';

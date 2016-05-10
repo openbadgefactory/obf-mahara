@@ -55,7 +55,7 @@ $options = array(
 );
 
 if ($group) {
-    $data = get_group_user_search_results($group, $query, 0, 9999, '', null, null, null);
+    $data = get_group_user_search_results($group, '', 0, 9999, '', null, null, null);
 }
 else {
     $data = search_user($query, $limit, $offset, $options);

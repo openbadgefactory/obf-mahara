@@ -1,4 +1,4 @@
-<div class="alert alert-success">
+<div class="ok">
     {str tag="alreadyauthenticated" section="interaction.obf" arg1=$expires|date_format}
 </div>
 

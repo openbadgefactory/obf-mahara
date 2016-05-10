@@ -38,7 +38,7 @@ define('GROUP', param_integer('id'));
 
 $group = group_current_group();
 
-if ((!is_logged_in() && !$group->public) || !PluginInteractionObf::user_can_issue_badges($USER)) {
+if (!is_logged_in() && !$group->public) {
     throw new AccessDeniedException();
 }
 
@@ -49,13 +49,9 @@ $badge = null;
 $currentpath = 'interaction/obf/group.php?id=' . GROUP;
 $institutions = PluginInteractionObf::get_issuable_institutions($USER);
 $content = '';
-$subpages = array(
-    'badges' => array('icon' => 'certificate'),
-    'history' => array('icon' => 'trophy')
-);
-
+$subpages = array('badges', 'history');
 $paramtype = param_alpha('page', 'badges');
-$page = !in_array($paramtype, array_keys($subpages)) ? 'badges' : $paramtype;
+$page = !in_array($paramtype, $subpages) ? 'badges' : $paramtype;
 $offset = param_integer('offset', 0);
 
 switch ($page) {
@@ -68,8 +64,7 @@ switch ($page) {
         break;
 }
 
-$smarty = smarty(array('interaction/obf/js/obf.js'), array(), array(),
-        array('sidebars' => false));
+$smarty = smarty(array(), array(), array(), array('sidebars' => false));
 $smarty->assign('group', GROUP);
 $smarty->assign('page', $page);
 $smarty->assign('subpages', $subpages);

@@ -33,7 +33,7 @@ class PluginInteractionObf extends ObfBase {
 
     /**
      * Returns the issuance events of a single group.
-     *
+     * 
      * @param int $groupid The id of the group.
      * @param string $badgeid The id of the badge.
      * @param int $offset Query offset.
@@ -50,7 +50,7 @@ class PluginInteractionObf extends ObfBase {
             $institutionevents = self::get_events($institution,
                             self::get_api_consumer_id($groupid), $badgeid,
                             $offset, $limit);
-
+            
             if ($institutionevents !== false) {
                 $events = array_merge($events, $institutionevents);
             }
@@ -59,9 +59,20 @@ class PluginInteractionObf extends ObfBase {
         return $events;
     }
 
+    public static function navigation_hook($user, &$items) {
+        // Add our page link to institution admin.
+        if ($user->get('admin') || $user->is_institutional_admin()) {
+            $items['manageinstitutions/obf'] = array(
+                'path' => 'manageinstitutions/obf',
+                'url' => 'interaction/obf/institution.php',
+                'title' => get_string('badges', 'interaction.obf'),
+                'weight' => 10);
+        }
+    }
+
     /**
      * Returns all the institutions in which the user can issue badges.
-     *
+     * 
      * @param stdClass $user The user object.
      * @return string[] The id's of the institutions.
      */
@@ -77,7 +88,7 @@ class PluginInteractionObf extends ObfBase {
     public static function get_institution_admins(Institution $institution) {
         return $institution->admins();
     }
-
+    
     public static function show_group_tab($group) {
         return true;
     }
