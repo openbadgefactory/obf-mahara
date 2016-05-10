@@ -92,20 +92,4 @@ class PluginInteractionObf extends ObfBase {
     public static function show_group_tab($group) {
         return true;
     }
-    
-    /**
-     * Navigation hook for mahara 1.8 - 1.10 support.
-     * 
-     * @param LiveUser $user
-     * @param array $items
-     */
-    public static function navigation_hook($user, &$items) {
-        // Add our page link to institution admin.
-        if ($user->get('admin') || $user->is_institutional_admin()) {
-            foreach (self::institution_menu_items() as $key => $menuitem) {
-                $items[$key] = $menuitem;
-            }
-        }
-    }
-
 }
