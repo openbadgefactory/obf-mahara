@@ -36,12 +36,9 @@ $string['authenticationhelp'] = 'Open Badge Factoryn käyttö ei ole mahdollista
         . ' ennen sertifikaatin luontia. Kirjaudu Open Badge Factoryyn luodaksesi'
         . ' valtuutusavaimen ja liitä se oheiseen tekstikenttään.';
 $string['authenticationsuccessful'] = 'Valtuutus onnistui.';
-$string['backpackconnectedhelp'] = 'Yhteys Mozilla Backpackiin on muodostettu'
-        . ' käyttäen sähköpostiosoitettasi <strong>%s</strong>.';
-$string['backpackdisconnected'] = 'Yhteys Mozilla Backpackiin katkaistu.';
-$string['backpackhelp'] = 'Jotta voit vastaanottaa Open Badges -osaamismerkkejä,'
-        . ' profiilisi tietoihin tulee tallentaa Mozilla Backpackissa käyttämäsi'
-        . ' sähköpostiosoite.';
+$string['backpackconnectedhelp'] = 'Open Badge yhteys on muodostettu käyttäen sähköpostiosoitettasi <strong>%s</strong>.';
+$string['backpackdisconnected'] = 'Open Badge yhteys katkaistu.';
+$string['backpackhelp'] = 'Jotta voit vastaanottaa Open Badges -osaamismerkkejä, profiilisi tietoihin tulee tallentaa sähköpostiosoite, johon haluat vastaanottaa merkkejä.<br/>Jos haluamasi sähköpostiosoite ei ole saatavilla, lisää osoite profiilitietoihisi.';
 $string['backpacksettings'] = 'Backpack-asetukset';
 $string['backtobadgelist'] = '< Takaisin osaamismerkkilistaan';
 $string['badgecreated'] = 'Luotu';
@@ -77,11 +74,9 @@ $string['filterbadges'] = 'Suodata merkkejä:';
 $string['groupmembers'] = 'Ryhmän jäsenet';
 $string['grouprecipients'] = 'Merkin saajat';
 $string['history'] = 'Myöntämishistoria';
-$string['institutionissuermembers'] = 'Instituution jäsenet, joilla on oikeus'
-        . ' myöntää osaamismerkkejä';
+$string['institutionissuermembers'] = 'Instituution jäsenet, joilla on oikeus myöntää osaamismerkkejä';
 $string['institutionissuers'] = 'Anna myöntämisoikeudet';
-$string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myöntää '
-        . 'osaamismerkkejä omissa ryhmissään.';
+$string['institutionissuershelp'] = 'Valitse käyttäjät, joilla on oikeus myöntää osaamismerkkejä omissa ryhmissään.';
 $string['institutionissuersupdated'] = 'Myöntämisasetukset päivitetty';
 $string['institutionmembers'] = 'Instituution jäsenet';
 $string['institutionselectordescription'] = '';
@@ -95,13 +90,14 @@ $string['nobadges'] = 'Osaamismerkkejä ei ole vielä luotu.';
 $string['noevents'] = 'Ei vielä myöntämistapahtumia.';
 $string['notadminforinstitution'] = 'Ainostaan instituution ylläpitäjä voi suorittaa ylläpitotoimia.';
 $string['numberofrecipients'] = '%s vastaanottajaa';
-$string['openbadgefactory']   = 'Open Badge Factory';
+$string['openbadgefactory'] = 'Open Badge Factory';
+$string['openbadgessettings'] = 'Open Badges -asetukset';
 $string['privileges'] = 'Myöntämisasetukset';
 $string['reauthenticate'] = 'Tee valtuutus uudelleen siitä huolimatta.';
 $string['recipients'] = 'Merkin saajat';
 $string['requesttoken'] = 'Valtuutusavain';
 $string['save'] = 'Tallenna';
-$string['savebackpack'] = 'Yhdistä Mozilla Backpackiin';
+$string['savebackpack'] = 'Yhdistä %s';
 $string['saveemail'] = 'Tallenna viesti';
 $string['selectissuancecategories'] = 'Sallitut kategoriat';
 $string['selectissuancecategorieshelp'] = 'Valitse merkkikategoriat, joiden '

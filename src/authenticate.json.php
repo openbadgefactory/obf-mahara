@@ -35,7 +35,7 @@ require('lib.php');
 $assertion = param_variable('assertion');
 
 try {
-    $email = PluginInteractionObf::verify_backpack_assertion($assertion);
+    $email = PluginInteractionObf::verify_backpack_assertion($assertion, $USER);
     PluginInteractionObf::save_backpack_email($USER, $email);
     json_reply(false, '');
 } catch (Exception $ex) {
