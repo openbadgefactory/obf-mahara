@@ -34,7 +34,6 @@ var Obf = (function() {
 
     var add_backpack_tab = function() {
         var subnav = get_subnav();
-        console.log(subnav);
         if (subnav === null) {
             return;
         }
