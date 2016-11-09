@@ -34,13 +34,13 @@ var Obf = (function() {
 
     var add_backpack_tab = function() {
         var subnav = get_subnav();
-
+        console.log(subnav);
         if (subnav === null) {
             return;
         }
 
         var url = window.config.wwwroot + 'interaction/obf/profile.php?user=' + userid;
-        var link = $j('<a></a>').text(options.lang.backpacksettings).attr('href', url);
+        var link = $j('<a></a>').text(options.lang.openbadgessettings).attr('href', url);
         var listelement = $j('<li></li>').append(link).addClass('backpack');
 
         subnav.append(listelement);
@@ -103,7 +103,7 @@ var Obf = (function() {
         // is enabled, the account settings links are located in
         // #main ul.nav-inpage. If the theme changes the navigation structure
         // from this, the links won't appear.
-        var possible_subnavs = ['#sub-nav ul.nav', '#main ul.nav-inpage'];
+        var possible_subnavs = ['#sub-nav ul.nav', '#main ul.nav-inpage', '#sub-nav ul:first'];
         var subnav = null;
 
         for (var i = 0; i < possible_subnavs.length; i++) {
@@ -133,10 +133,9 @@ var Obf = (function() {
             create_issue_to_all_button();
         },
 
-        connect_to_backpack: function(evt) {
+        connect_to_backpack: function(evt, email) {
             evt.preventDefault();
-
-            navigator.id.get(function(assertion) {
+            var assertion_callback = function(assertion) {
                 $j('#assertion-error').hide();
                 if (assertion !== null) {
                     $j.getJSON(window.config.wwwroot + 'interaction/obf/authenticate.json.php', {
@@ -146,11 +145,17 @@ var Obf = (function() {
                             $j('#assertion-error').text(res.message).show();
                         }
                         else {
-                            window.location.reload();
+                        window.location.reload();
                         }
                     });
                 }
-            });
+            };
+            
+            if (email !== undefined && typeof email === 'string') {
+                assertion_callback({email: email, localemail: true});
+            } else {
+                navigator.id.get(assertion_callback);
+            }
         },
 
         select_backpack_tab: function () {

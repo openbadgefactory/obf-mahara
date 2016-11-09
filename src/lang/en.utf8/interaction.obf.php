@@ -37,12 +37,12 @@ $string['authenticationhelp'] = 'Certificate needs to be generated before'
         . ' Open Badge Factory to get the request token and paste it to the'
         . ' field below.';
 $string['authenticationsuccessful'] = 'Authentication successful.';
-$string['backpackconnectedhelp'] = 'Connection to Mozilla Backpack is '
+$string['backpackconnectedhelp'] = 'Open Badge connection is '
         . 'established using your email address <strong>%s</strong>.';
 $string['backpackdisconnected'] = 'Connection to Mozilla Backpack hasn\'t'
         . ' been made yet.';
-$string['backpackhelp'] = 'To start earning Open Badges, you need to connect to '
-        . 'Mozilla Backpack using your email address.';
+$string['backpackhelp'] = 'To start earning Open Badges, you need to select the '
+        . ' email address, you wish to use to receive badges.<br/>If your desired address is not available here, add it to your profile\'s contact information.';
 $string['backpacksettings'] = 'Backpack settings';
 $string['backtobadgelist'] = '< Back to list of badges';
 $string['badgecreated'] = 'Created';
@@ -98,12 +98,13 @@ $string['notadminforinstitution'] = 'Only the institution admin can perform'
         . ' administration tasks for this plugin.';
 $string['numberofrecipients'] = '%s recipients';
 $string['openbadgefactory']   = 'Open Badge Factory';
+$string['openbadgessettings'] = 'Open Badges settings';
 $string['privileges'] = 'Issuance settings';
 $string['reauthenticate'] = 'Re-authenticate anyway';
 $string['recipients'] = 'Recipients';
 $string['requesttoken'] = 'Request token';
 $string['save'] = 'Save';
-$string['savebackpack'] = 'Connect to Mozilla Backpack';
+$string['savebackpack'] = 'Connect %s';
 $string['saveemail'] = 'Save message';
 $string['selectissuancecategories'] = 'Available categories';
 $string['selectissuancecategorieshelp'] = 'Select the badge categories of which '

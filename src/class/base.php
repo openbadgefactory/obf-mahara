@@ -30,7 +30,7 @@ defined('INTERNAL') || die();
 interface ObfInterface {
 
     static function get_head_data($menuitem, $menuexists, $userid, $theme);
-
+    
     static function get_group_events($groupid, $badgeid, $offset, $limit);
 
     static function get_institution_admins(Institution $institution);
@@ -192,7 +192,7 @@ abstract class ObfBase extends PluginInteraction implements ObfInterface {
             if ($isprofilepage) {
                 $jsonopts = json_encode(array(
                     'lang' => array(
-                        'backpacksettings' => get_string('backpacksettings',
+                        'openbadgessettings' => get_string('openbadgessettings',
                                 'interaction.obf')
                     )
                 ));
@@ -1487,40 +1487,55 @@ SQL;
 
     /**
      * Verifies the assertion returned by Persona's authentication callback.
-     *
+     * 
      * @param string $assertion The assertion from Persona.
+     * @param stdClass $user The user
      * @return string Returns the email address matching the assertion.
      * @throws Exception If the verification fails for some reason.
      */
-    public static function verify_backpack_assertion($assertion) {
-        $params = array('assertion' => $assertion, 'audience' => self::get_audience());
-        $curlopts = array(
-            CURLOPT_POST => 1,
-            CURLOPT_URL => PERSONA_VERIFIER_URL,
-            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
-            CURLOPT_POSTFIELDS => json_encode($params)
-        );
+    public static function verify_backpack_assertion($assertion, $user = null) {
+        if (
+                is_array($assertion) && !empty($user) &&
+                isset($assertion['localemail']) && $assertion['localemail'] == 'true'
+            ) {
+            $emails = array_map('strtolower',get_column('artefact_internal_profile_email', 'email', 'owner', $user->id, 'verified', 1));
+            $email = strtolower($assertion['email']);
+            if (!in_array($email, $emails)) {
+                error_log($email);
+                throw new Exception(get_string('verificationfailed',
+                        'interaction.obf'));
+            }
+        } else {
+            $params = array('assertion' => $assertion, 'audience' => self::get_audience());
+            $curlopts = array(
+                CURLOPT_POST => 1,
+                CURLOPT_URL => PERSONA_VERIFIER_URL,
+                CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+                CURLOPT_POSTFIELDS => json_encode($params)
+            );
 
-        $resp = mahara_http_request($curlopts);
+            $resp = mahara_http_request($curlopts);
 
-        if (empty($resp->data)) {
-            throw new Exception(get_string('verificationfailed',
-                    'interaction.obf'));
+            if (empty($resp->data)) {
+                throw new Exception(get_string('verificationfailed',
+                        'interaction.obf'));
+            }
+
+            $data = json_decode($resp->data);
+
+            if (empty($data)) {
+                throw new Exception(get_string('verificationfailed',
+                        'interaction.obf'));
+            }
+
+            if ($data->status != 'okay') {
+                throw new Exception(get_string('invalidassertion',
+                        'interaction.obf', $data->reason));
+            }
+
+            $email = $data->email;
         }
-
-        $data = json_decode($resp->data);
-
-        if (empty($data)) {
-            throw new Exception(get_string('verificationfailed',
-                    'interaction.obf'));
-        }
-
-        if ($data->status != 'okay') {
-            throw new Exception(get_string('invalidassertion',
-                    'interaction.obf', $data->reason));
-        }
-
-        $email = $data->email;
+        
 
         return $email;
     }

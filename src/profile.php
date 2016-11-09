@@ -35,23 +35,37 @@ $form = '';
 $helptext = '';
 $currentpath = '/interaction/obf/profile.php?user=' . $USER->id;
 
-define('TITLE', get_string('backpacksettings', 'interaction.obf'));
+define('TITLE', get_string('openbadgessettings', 'interaction.obf'));
 
 // User doesn't yet have backpack email saved to database.
 if ($backpackemail === false) {
+    $emails = get_column('artefact_internal_profile_email', 'email', 'owner', $USER->id, 'verified', 1);
+
     $helptext = get_string('backpackhelp', 'interaction.obf');
-    $form = pieform(array(
+    
+
+    $pieformarray = array(
         'name' => 'backpack',
         'jsform' => false,
         'presubmitcallback' => null, // This gets predefined somewhere. Wut?
         'elements' => array(
-            'submit' => array(
+            /*'submit' => array(
                 'type' => 'submit',
-                'class' => 'btn-primary',
                 'value' => get_string('savebackpack', 'interaction.obf')
-            )
+            )*/
         )
-    ));
+    );
+    $i=0;
+    foreach($emails as $email) {
+        $pieformarray['elements']['submit'.$i] = array( // TODO: No $i
+                'data' => $email,
+                'type' => 'submit',
+                'onclick' => 'Obf.connect_to_backpack(event,"'.$email.'"); return false;',
+                'value' => get_string('savebackpack', 'interaction.obf', $email)
+            );
+        $i+=1;
+    }
+    $form = pieform($pieformarray);
 }
 else {
     $helptext = get_string('backpackconnectedhelp', 'interaction.obf', $backpackemail);
